@@ -33,26 +33,81 @@ export default function Leaderboard({ route, navigation }) {
   const [balance, setBalance] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
-  //   method: "GET",
-  //   headers: {
-  //     "X-RapidAPI-Key": "3237c553e5mshde123631b52135cp166f44jsn5c0fc8607fce",
-  //     // "X-RapidAPI-Key": "91b74585dfmsh52e3d564c3855b9p195ec6jsn593aceacdf1e",
-  //     "X-RapidAPI-Host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
-  //   },
-  // };
-  const onRefresh = React.useCallback(async () => {
-    setRefreshing(true);
-    await getUserData();
-    await fetchPrices();
-    await calculateRevenue();
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
-  }, []);
+  // const onRefresh = React.useCallback(async () => {
+  //   setRefreshing(true);
+  //   await getName();
+  //   console.log("name: ", name);
+  //   await getUserData();
+  //   console.log("userData: ", userData);
+  //   await fetchPrices();
+  //   console.log("tempData: ", tempData);
+  //   setIsLoading(false);
+  //   console.log("Loading done!");
+  //   setRefreshing(false);
+  // }, []);
   let tempPriceData = [];
+
+  let symbolStr = "";
+  let tempUserData = [];
+  let tempData = {};
+
+  const getName = async () => {
+    setIsLoading(true);
+    console.log("loading starts!");
+    let tempName = [];
+    let tempBalance = [];
+    const querySnapshot = await getDocs(collection(db, "users"));
+
+    querySnapshot.forEach((doc) => {
+      let name = doc.data().name;
+      tempName.push(name);
+      tempBalance.push(doc.data().balance);
+    });
+    setBalance(tempBalance);
+    setName(tempName);
+  };
+
+  const getUserData = async () => {
+    const querySnapshot = await getDocs(collection(db, "holdingStack"));
+
+    querySnapshot.forEach((doc) => {
+      let temp = Object.keys(doc.data());
+
+      tempUserData.push(doc.data());
+      // console.log("data: ", doc.data());
+
+      for (let i = 0; i < temp.length; i++) {
+        symbolStr = symbolStr + "%2C" + temp[i];
+      }
+    });
+    console.log("userData: ", userData);
+    setUserData(tempUserData);
+
+    console.log("Big string: ", symbolStr);
+  };
+
+  const fetchPrices = async () => {
+    symbolStr = symbolStr.slice(3);
+    fetch(
+      "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols=" +
+        symbolStr,
+      options
+    )
+      .then((response) => response.json())
+      .then((response) => {
+        let data = response.quoteResponse.result;
+
+        data.forEach((el) => {
+          tempData[el.symbol] = el.regularMarketPrice;
+        });
+        setStockData(tempData);
+      })
+      .catch((err) => console.error("ERROR: ", err));
+  };
 
   // calculates revenues for each user
   const calculateRevenue = async () => {
+    console.log("cal: ", userData);
     for (let i = 0; i < userData.length; i++) {
       let profit = 0;
       let user = userData[i];
@@ -71,74 +126,19 @@ export default function Leaderboard({ route, navigation }) {
     setPriceData(tempPriceData);
   };
 
-  useEffect(() => {
-    const init = async () => {
-      let symbolStr = "";
-      let tempUserData = [];
-      let tempData = {};
-
-      const getName = async () => {
-        setIsLoading(true);
-        console.log("loading starts!");
-        let tempName = [];
-        let tempBalance = [];
-        const querySnapshot = await getDocs(collection(db, "users"));
-
-        querySnapshot.forEach((doc) => {
-          let name = doc.data().name;
-          tempName.push(name);
-          tempBalance.push(doc.data().balance);
-        });
-        setBalance(tempBalance);
-        setName(tempName);
-      };
-
-      const getUserData = async () => {
-        const querySnapshot = await getDocs(collection(db, "holdingStack"));
-
-        querySnapshot.forEach((doc) => {
-          let temp = Object.keys(doc.data());
-
-          tempUserData.push(doc.data());
-
-          for (let i = 0; i < temp.length; i++) {
-            symbolStr = symbolStr + "%2C" + temp[i];
-          }
-        });
-        setUserData(tempUserData);
-
-        console.log("Big string: ", symbolStr);
-      };
-
-      const fetchPrices = async (symbolStr) => {
-        symbolStr = symbolStr.slice(3);
-        fetch(
-          "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols=" +
-            symbolStr,
-          options
-        )
-          .then((response) => response.json())
-          .then((response) => {
-            let data = response.quoteResponse.result;
-
-            data.forEach((el) => {
-              tempData[el.symbol] = el.regularMarketPrice;
-            });
-            setStockData(tempData);
-          })
-          .catch((err) => console.error("ERROR: ", err));
-      };
-      await getName();
-      console.log("name: ", name);
-      await getUserData();
-      console.log("userData: ", userData);
-      await fetchPrices(symbolStr);
-      console.log("tempData: ", tempData);
-      setIsLoading(false);
-      console.log("Loading done!");
-    };
-    init();
-  }, []);
+  // useEffect(() => {
+  //   const init = async () => {
+  //     await getName();
+  //     console.log("name: ", name);
+  //     await getUserData();
+  //     console.log("userData: ", userData);
+  //     await fetchPrices();
+  //     console.log("tempData: ", tempData);
+  //     setIsLoading(false);
+  //     console.log("Loading done!");
+  //   };
+  //   init();
+  // }, []);
 
   useEffect(() => {
     const init = async () => {
@@ -147,6 +147,20 @@ export default function Leaderboard({ route, navigation }) {
     init();
     console.log("priceData: ", priceData);
   }, [stockData]);
+  // 56286
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", async () => {
+      await getName();
+      console.log("name: ", name);
+      await getUserData();
+      console.log("userData: ", userData);
+      await fetchPrices();
+      console.log("priceData: ", tempData);
+      setIsLoading(false);
+      console.log("Loading done!");
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <ScrollView
@@ -166,10 +180,10 @@ export default function Leaderboard({ route, navigation }) {
           <View
             style={{
               backgroundColor: "#e8e2c2",
-              height: "75%",
+              height: "50%",
               // heigth: 300,
-              borderBottomEndRadius: 30,
-              borderBottomLeftRadius: 30,
+              // borderBottomEndRadius: 30,
+              // borderBottomLeftRadius: 30,
             }}
           >
             <View

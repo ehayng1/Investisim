@@ -39,13 +39,13 @@ const styles = StyleSheet.create({
 function Trade({ route, navigation }) {
   const [refreshing, setRefreshing] = React.useState(false);
 
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    getUserData();
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
-  }, []);
+  // const onRefresh = React.useCallback(() => {
+  //   setRefreshing(true);
+  //   getUserData();
+  //   setTimeout(() => {
+  //     setRefreshing(false);
+  //   }, 2000);
+  // }, []);
   // const [data, setData] = React.useState([
   //   { symbol: "", amount: 0, price: 0, balance: 0, time: 0 },
   // ]);
@@ -106,9 +106,9 @@ function Trade({ route, navigation }) {
   return (
     <ScrollView
       contentContainerStyle={styles.scrollView}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
+      // refreshControl={
+      //   <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      // }
     >
       <View style={{ marginHorizontal: 20 }}>
         <Text
@@ -116,7 +116,7 @@ function Trade({ route, navigation }) {
             marginBottom: 20,
             fontSize: 21,
             fontWeight: "bold",
-            marginTop: 10,
+            marginTop: "5%",
           }}
         >
           Purchased Stocks
@@ -172,7 +172,7 @@ function Trade({ route, navigation }) {
                     <View
                       style={{
                         flexDirection: "row",
-                        flex: 0.3,
+                        flex: 0.35,
                         alignItems: "center",
                       }}
                     >
@@ -203,14 +203,25 @@ function Trade({ route, navigation }) {
                     style={{
                       height: 0.4,
                       backgroundColor: "#808080",
-                      marginTop: 15,
-                      marginBottom: 15,
+                      marginTop: "4%",
+                      marginBottom: "4%",
                     }}
                   ></View>
                 </View>
               )
           )}
         </View>
+        <Text
+          style={{
+            textAlign: "center",
+            marginTop: "15%",
+            color: "#808080",
+            fontSize: 18,
+            marginBottom: "10%",
+          }}
+        >
+          Click each asset to sell it!
+        </Text>
       </View>
     </ScrollView>
   );

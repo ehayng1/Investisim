@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  BackHandler,
+  Alert,
 } from "react-native";
 // import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import {
@@ -36,6 +38,28 @@ export default function SignUp(props) {
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // if user presses the back button, asks for exit
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert("Hold on!", "Are you sure you want to leave?", [
+        {
+          text: "Cancel",
+          onPress: () => null,
+          style: "cancel",
+        },
+        { text: "YES", onPress: () => BackHandler.exitApp() },
+      ]);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
   const getUserId = async function uploadBeforePromise() {
     return new Promise(function (resolve, reject) {
       onAuthStateChanged(auth, (user) => {
@@ -50,18 +74,23 @@ export default function SignUp(props) {
   const register = () => {
     if (email == "") {
       setEmailError("Please enter an email.");
+      alert(emailError);
       return;
     } else if (name == "") {
       setNameError("Please enter your name.");
+      alert(nameError);
       return;
     } else if (password == "") {
       setPasswordError("Please enter a password.");
+      alert(passwordError);
       return;
     } else if (confirmPassword == "") {
       setConfirmPasswordError("Please confirm your password.");
+      alert(confirmPasswordError);
       return;
     } else if (password != confirmPassword) {
       setConfirmPasswordError("Password does not match.");
+      alert(confirmPasswordError);
       return;
     }
 
@@ -137,7 +166,7 @@ export default function SignUp(props) {
           fontSize: 40,
           fontWeight: "bold",
           marginLeft: 20,
-          // marginTop: hp(20),
+          marginBottom: "5%",
           marginTop: "20%",
         }}
       >
@@ -148,7 +177,7 @@ export default function SignUp(props) {
           backgroundColor: "#EEEEEE",
           padding: 15,
           fontSize: 15,
-          marginTop: 50,
+          // marginTop: 50,
           borderRadius: 15,
           marginHorizontal: 20,
         }}
@@ -240,7 +269,7 @@ export default function SignUp(props) {
       <Text
         style={{
           textAlign: "center",
-          marginTop: 5,
+          marginTop: "3%",
         }}
       >
         Already have an account?

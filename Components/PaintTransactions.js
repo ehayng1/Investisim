@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, ScrollView } from "react-native";
 
-export default function PaintTransctions({ symbol, amount }) {
+export default function PaintTransctions({ symbol, amount, name }) {
   return (
     <View
       style={{
@@ -34,8 +34,8 @@ export default function PaintTransctions({ symbol, amount }) {
           >
             {symbol}
           </Text>
-          <Text style={{ fontSize: 12, color: "#5A5742", marginLeft: "2%" }}>
-            {symbol}
+          <Text style={{ fontSize: 14, color: "#5A5742", marginLeft: "1%" }}>
+            {name}
           </Text>
         </View>
         <Text

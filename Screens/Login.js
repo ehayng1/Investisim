@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,31 +6,16 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  BackHandler,
+  Alert,
 } from "react-native";
 import {
   getAuth,
   signInWithEmailAndPassword,
   currentUser,
 } from "firebase/auth";
+
 const auth = getAuth();
-import { db } from "../firebaseConfig";
-// import { Input } from "@rneui/themed";
-// import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen";
-
-// import Toast from 'react-native-toast-message';
-// const firebaseConfig = {
-//     apiKey: "AIzaSyBSqX27chazWngauvncclnrub-WhScEmbE",
-//     authDomain: "jejuapp-1ae46.firebaseapp.com",
-//     projectId: "jejuapp-1ae46",
-//     storageBucket: "jejuapp-1ae46.appspot.com",
-//     messagingSenderId: "963611345040",
-//     appId: "1:963611345040:web:0624b1f97dd5e2ee3a1815",
-//     measurementId: "G-NYD1LVSLQW"
-//   };
-
-// // Initialize Firebase
-// const app = initializeApp(firebaseConfig);
-// const auth = getAuth(app);
 
 export default function Login(props) {
   const [email, setEmail] = useState("");
@@ -38,6 +23,32 @@ export default function Login(props) {
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setError] = useState(false);
+
+  // if user presses the back button, asks for exit
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert("Hold on!", "Are you sure you want to leave?", [
+        {
+          text: "Cancel",
+          onPress: () => null,
+          style: "cancel",
+        },
+        { text: "YES", onPress: () => BackHandler.exitApp() },
+      ]);
+      return true;
+    };
+
+    // Delay the registration of the event listener
+    const timeoutId = setTimeout(() => {
+      BackHandler.addEventListener("hardwareBackPress", backAction);
+    }, 1000); // Adjust the delay time as needed
+
+    return () => {
+      clearTimeout(timeoutId);
+      BackHandler.removeEventListener("hardwareBackPress", backAction);
+    };
+  }, []);
 
   const login = () => {
     if (email == "") {
@@ -51,17 +62,9 @@ export default function Login(props) {
         const setId = async (id) => {
           await AsyncStorage.setItem("uniqueId", id);
         };
-        // const user = currentUser(auth);
-        // // access the user uid
-        // if (user) {
-        //   // uid = user.uid;
-        //   console.log(user.uid);
-        //   await setId(user.uid);
-        // }
-        // Disabled: the login fails if enabled
-        // await setId(id);
         console.log("Logged In");
-        // Signed In
+        console.log(props.navigation);
+
         props.navigation.reset({
           index: 0,
           routes: [{ name: "Home" }],
@@ -71,23 +74,11 @@ export default function Login(props) {
       .catch((error) => {
         const errorCode = error.code;
         if (errorCode == "auth/invalid-email") {
-          //   Toast.show({
-          //     type: "error",
-          //     text1: "Email format is not correct.",
-          //   });
           alert("Email format is not correct.");
         } else if (errorCode == "auth/user-not-found") {
-          //   Toast.show({
-          //     type: "error",
-          //     text1: "Email does not exist.",
-          //   });
           alert("Email does not exist!");
         } else if (errorCode == "auth/wrong-password") {
-          //   Toast.show({
-          //     type: "error",
-          //     text1: "Email does not exist.",
-          //   });
-          alert("Incorrect Password!");
+          alert("Incorrect Password.");
         }
         setLoading(false);
         console.log(errorCode);
@@ -101,6 +92,7 @@ export default function Login(props) {
           fontSize: 40,
           fontWeight: "bold",
           marginLeft: 20,
+          marginBottom: "5%",
         }}
       >
         Login
@@ -128,10 +120,10 @@ export default function Login(props) {
           padding: 15,
           fontSize: 15,
           borderRadius: 15,
-          marginBottom: 50,
           marginTop: 20,
           marginHorizontal: 20,
         }}
+        secureTextEntry={true}
         placeholder="Password"
         autoCapitalize={"none"}
         onChangeText={(e) => {
@@ -173,7 +165,7 @@ export default function Login(props) {
       <Text
         style={{
           textAlign: "center",
-          marginTop: 5,
+          marginTop: "3%",
         }}
       >
         Don't have an account?

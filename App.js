@@ -22,7 +22,9 @@ import Resources from "./Screens/Resources";
 import About from "./Screens/Drawer/About";
 import Login from "./Screens/Login";
 import SignUp from "./Screens/SignUp";
+import Profile from "./Screens/Drawer/Profile";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FontAwesome } from "@expo/vector-icons";
 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
@@ -183,7 +185,7 @@ function MyDrawer() {
             <MaterialCommunityIcons name="home" color="#E64A19" size={size} />
           ),
           drawerLabel: "Home",
-          title: "DREAM",
+          title: "Funducate",
           headerTitleAlign: "center",
           headerStyle: {
             // removes the border bottom line of DREAM
@@ -203,26 +205,56 @@ function MyDrawer() {
           // headerTitle: (props) => <LogoTitle {...props} />,
         }}
       />
-      {/* <Drawer.Screen
+      <Drawer.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          drawerIcon: ({ size }) => (
+            <FontAwesome name="user-circle" size={size} color="#E64A19" />
+          ),
+          drawerLabel: "User Profile",
+        }}
+      />
+      <Drawer.Screen
         name="About Us"
         component={About}
-        options={{ drawerLabel: "About Us" }}
-      /> */}
+        options={{
+          drawerIcon: ({ size }) => (
+            <MaterialCommunityIcons
+              name="information-outline"
+              color="#E64A19"
+              size={size}
+            />
+          ),
+          drawerLabel: "About Us",
+        }}
+      />
+
       <Drawer.Screen
         name="Login"
         component={Login}
         options={{
-          // uncomment this when testing is over
+          //disables swiping from left to prevent user naviagation before login or sign up.
+          swipeEdgeWidth: 0,
+          // uncomment line below when testing is over to block user from navigating to home before login.
           headerShown: false,
           drawerLabel: "Login / Sign Up",
+          drawerIcon: ({ size }) => (
+            <MaterialCommunityIcons name="login" color="#E64A19" size={size} />
+          ),
+          //deletes from sidebar
+          drawerItemStyle: { height: 0 },
         }}
       />
       <Drawer.Screen
         name="SignUp"
         component={SignUp}
         options={{
+          //disables swiping from left to prevent user naviagation before login or sign up.
+          swipeEdgeWidth: 0,
           headerShown: false,
           drawerLabel: "Sign Up",
+          //deletes from sidebar
           drawerItemStyle: { height: 0 },
         }}
       />
@@ -246,7 +278,7 @@ function LogoTitle() {
           fontSize: 18,
         }}
       >
-        DREAM
+        Funducate
       </Text>
       <Image
         style={{

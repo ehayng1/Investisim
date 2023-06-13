@@ -1,24 +1,30 @@
 {
+  "cli": {
+    "version": ">= 3.10.2"
+  },
   "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "development"
+    },
     "preview": {
-      "android": {
-        "buildType": "apk"
-      }
-    },
-    "preview2": {
-      "android": {
-        "gradleCommand": ":app:assembleRelease"
-      }
-    },
-    "preview3": {
-      "developmentClient": true
+      "distribution": "internal",
+      "channel": "preview"
     },
     "production": {
+      "channel": "production"
+    }
+  },
+  "submit": {
+    "production": {
       "android": {
-        "buildType": "apk"
+        "serviceAccountKeyPath": "./pc-api-8624190404851205218-816-353e3e1ccd1c.json"
       },
       "ios": {
-        "simulator": true
+        "appleId": "main@xprtis.com",
+        "ascAppId": "6449999432",
+        "appleTeamId": "H25QV2PV39"
       }
     }
   }

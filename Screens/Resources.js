@@ -4,6 +4,7 @@ import {
   Text,
   View,
   Image,
+  Button,
   Pressable,
 } from "react-native";
 import fetchNewsInfo from "../Components/fetchNewsInfo";
@@ -37,21 +38,25 @@ function Resource({ navigation }) {
   const [timeLeft, setTimeLeft] = React.useState(0);
 
   const [material, setMaterial] = React.useState([
-    { title: "Week 1", isActivated: true, strategy: "Day Trading" },
-    { title: "Week 2", isActivated: false, strategy: "Position Trading" },
-    { title: "Week 3", isActivated: false, strategy: "Swing Trading" },
-    { title: "Week 4", isActivated: false, strategy: "Scalping" },
-    { title: "Week 5", isActivated: false, strategy: "News Trading" },
-    { title: "Week 6", isActivated: false, strategy: "End of Day Trading" },
-    { title: "Week 7", isActivated: false, strategy: "Breakout Trading" },
-    { title: "Week 8", isActivated: false, strategy: "Pullback Trading" },
-    { title: "Week 9", isActivated: false, strategy: "Moving average Trading" },
-    { title: "Week 10", isActivated: false, strategy: "Momentum Trading" },
-    { title: "Week 11", isActivated: false, strategy: "IPOs" },
-    { title: "Week 12", isActivated: false, strategy: "Short Selling" },
-    { title: "Week 13", isActivated: false, strategy: "Margin Trading" },
-    { title: "Week 14", isActivated: false, strategy: "Funds Trading" },
-    { title: "Week 15", isActivated: false, strategy: "Seasonal Trading" },
+    { title: "Week 1", isActivated: true, strategy: "1. Day Trading" },
+    { title: "Week 2", isActivated: false, strategy: "2. Position Trading" },
+    { title: "Week 3", isActivated: false, strategy: "3. Swing Trading" },
+    { title: "Week 4", isActivated: false, strategy: "4. Scalping" },
+    { title: "Week 5", isActivated: false, strategy: "5. News Trading" },
+    { title: "Week 6", isActivated: false, strategy: "6. End of Day Trading" },
+    { title: "Week 7", isActivated: false, strategy: "7. Breakout Trading" },
+    { title: "Week 8", isActivated: false, strategy: "8. Pullback Trading" },
+    {
+      title: "Week 9",
+      isActivated: false,
+      strategy: "9. Moving average Trading",
+    },
+    { title: "Week 10", isActivated: false, strategy: "10. Momentum Trading" },
+    { title: "Week 11", isActivated: false, strategy: "11. IPOs" },
+    { title: "Week 12", isActivated: false, strategy: "12. Short Selling" },
+    { title: "Week 13", isActivated: false, strategy: "13. Margin Trading" },
+    { title: "Week 14", isActivated: false, strategy: "14. Funds Trading" },
+    { title: "Week 15", isActivated: false, strategy: "15. Seasonal Trading" },
   ]);
 
   curStage = [];
@@ -61,10 +66,15 @@ function Resource({ navigation }) {
     const init = async () => {
       await AsyncStorage.removeItem("timekey");
       let tempTime = await AsyncStorage.getItem("timekey");
-      console.log(tempTime);
+      console.log("Time: ", tempTime);
       await AsyncStorage.setItem("stage", "0");
       let tempStage = await AsyncStorage.getItem("stage");
       console.log("Stage Init: ", tempStage);
+      setTimeLeft(345600);
+      // setTimeLeft(5);
+      setId(new Date().getTime().toString());
+      setStage(0);
+      updateWeeks();
     };
     init();
   }
@@ -95,22 +105,23 @@ function Resource({ navigation }) {
         const value = await AsyncStorage.getItem("timeKey");
         // if time value has been previously stored
         if (value !== null) {
+          console.log("Time value: ", value);
           let timeLeft;
           initTime = parseInt(value);
-          let endTime = initTime + 345600000; // 604800 * 1000
-          // for test
-          // let endTime = initTime + 500000; // 604800 * 1000
-
+          let endTime = initTime + 345600000; // 604800 * 1000 // 4 days
+          // for test: smaller timer times.
+          // let endTime = initTime + 500000; // 604800 * 1000 // 5 min
+          // let endTime = initTime + 3000; // 604800 * 1000 // 3 sec
           let curTime = new Date().getTime();
           timeLeft = endTime - curTime;
           timeLeft = Math.floor(timeLeft / 1000);
-          //no time left: add some time
+          // if no time left, add some time
           if (timeLeft <= 0) {
             timeLeft = 3;
             setTimeLeft(timeLeft);
             setId(new Date().getTime().toString());
           }
-          // same stage
+          // if same stage
           else {
             setTimeLeft(timeLeft);
             // updates the timer with new id
@@ -118,14 +129,18 @@ function Resource({ navigation }) {
           }
           console.log("Time Left: ", timeLeft);
         }
-        // when no key was found: record initial date
+        // when no timeKey was found: record initial date
         else {
-          console.log("Store enterd");
           let time = new Date().getTime().toString();
           const storeData = async () => {
             try {
               await AsyncStorage.setItem("timeKey", time);
               console.log("Initial Date Recorded!", time);
+              // initial setting
+              // let curTime = new Date().getTime();
+              setTimeLeft(345600);
+              setId(new Date().getTime().toString());
+              setStage(0);
             } catch (e) {
               console.log("Store failed: ", e);
             }
@@ -155,7 +170,7 @@ function Resource({ navigation }) {
         await AsyncStorage.setItem("timeKey", time);
         console.log("Date Recorded!", time);
       } catch (e) {
-        console.log("Stage store failed: ", e);
+        console.log("Failed: ", e);
       }
     };
     await updateDate();
@@ -168,9 +183,9 @@ function Resource({ navigation }) {
   return (
     <ScrollView>
       <View style={{}}>
-        <Pressable onPress={removeData}>
+        {/* <Pressable onPress={removeData}>
           <Text>Remove</Text>
-        </Pressable>
+        </Pressable> */}
         <Text
           style={{
             marginTop: 40,

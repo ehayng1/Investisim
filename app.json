@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "myStock",
+    "name": "Funducate",
     "icon": "./data/logo.png",
-    "slug": "myStock",
-    "version": "1.0.0",
+    "slug": "Funducate",
+    "version": "1.0.1",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "splash": {
@@ -11,27 +11,33 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ehayng1.myStock"
+      "bundleIdentifier": "com.ehayng1.Funducate",
+      "buildNumber": "4"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./data/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.ehayng1.myStock"
+      "package": "com.ehayng1.Funducate",
+      "versionCode": 4
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "e0dc3b4f-7768-4887-ae0d-94a81f89cca6"
+        "projectId": "c47d1abb-e722-4448-833f-bf6ae4a90bf2"
       }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c47d1abb-e722-4448-833f-bf6ae4a90bf2"
     }
   }
 }

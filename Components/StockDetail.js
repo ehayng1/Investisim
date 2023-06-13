@@ -4,7 +4,9 @@ import {
   Text,
   ScrollView,
   View,
+  Alert,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import * as Application from "expo-application";
@@ -34,6 +36,7 @@ export default function StockDetail({ route, navigation }) {
   const [amount, onChangeAmount] = React.useState();
   const userData = [0, 0]; // balance, purchasedAmount
   const [refreshing, setRefreshing] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -43,6 +46,7 @@ export default function StockDetail({ route, navigation }) {
   }, []);
 
   const getId = async () => {
+    // setIsLoading(true);
     const auth = getAuth();
     const user = auth.currentUser;
     if (user) {
@@ -108,6 +112,7 @@ export default function StockDetail({ route, navigation }) {
   let fiftyTwoWeekHigh = stock[10];
   let volume = stock[11];
   let mktCap = stock[12];
+  // setIsLoading(false);
 
   const overview = [
     ["Previous Close", prevClose],
@@ -209,11 +214,7 @@ export default function StockDetail({ route, navigation }) {
     } catch (e) {
       console.log("Error: ", e);
     }
-    // CRUD
-    // create
-    // read
-    // update
-    // delete
+
     await updateDoc(
       doc(db, "users", uniqueId),
       type === "Buy"
@@ -243,77 +244,58 @@ export default function StockDetail({ route, navigation }) {
         });
         console.log("Holding Stacks updated!", res);
       }
-
-      // userData[1] = Number(amount) * type + userData[1];
     } catch (e) {
       console.log("Error: ", e);
     }
-    // try {
-    //   // const DocRef = doc(db, "users", uniqueId);
-    //   // const res = await updateDoc(DocRef, {
-    //   //   // "holdingStack.AAPL": amount,
-    //   //   [`holdingStack.${company}`]: amount,
-    //   // });
-
-    //   // const res = db.collection("users").doc(uniqueId).update({
-    //   //   // [`holdingStack.${company}`]: 10,
-    //   //   "holdingStack.AAPL": 5,
-    //   // });
-    //   // .update({
-    //   //   "holdingStack.AAPL": amount,
-    //   // });
-
-    //   console.log(res);
-    // } catch (e) {
-    //   console.log("Error: ", e);
-    // }
   };
 
   async function handleBuy() {
-    let balance;
-    let profit;
-    let purchased;
-    await getUserData(); // takes 2 seconds
-    // code that uses result from getUserData()
-    let total = amount * price;
-    console.log("total: ", total);
-    console.log(userData[0]);
-    if (amount <= 0 || amount == null) {
-      alert("Please eneter amount of shares to buy.");
-    } else if (userData[0] < total) {
-      alert("Not enough balance!");
-    } else {
-      updateBalance("Buy");
-      updateStock("Buy", purchased);
-      updateHistory("Buy");
-      updateTransaction("Buy");
-      alert(`Bought ${amount} shares of ${company}!`);
-    }
-  }
-
-  async function handleSell() {
-    let balance;
-    let profit;
     let purchased;
     await getUserData();
     let total = amount * price;
     console.log("total: ", total);
     console.log(userData[0]);
     if (amount <= 0 || amount == null) {
-      alert("Please eneter amount of shares to sell.");
+      Alert.alert("ERROR", "Please enter amount of shares to buy.");
+    } else if (userData[0] < total) {
+      Alert.alert("ERROR", "Not enough balance!");
+    } else {
+      updateBalance("Buy");
+      updateStock("Buy", purchased);
+      updateHistory("Buy");
+      updateTransaction("Buy");
+      Alert.alert(
+        "Transaction successful",
+        `Purchased ${amount} shares of ${company}!`
+      );
+      onChangeAmount(0);
+    }
+  }
+
+  async function handleSell() {
+    let purchased;
+    await getUserData();
+    let total = amount * price;
+    console.log("total: ", total);
+    console.log(userData[0]);
+    if (amount <= 0 || amount == null) {
+      Alert.alert("ERROR", "Please enter amount of shares to sell.");
     } else if (route.params.amount < amount) {
-      alert("Not enough purchased stocks!");
+      Alert.alert("ERROR", "Not enough purchased stocks!");
     } else {
       await updateHistory("Sell");
       await updateStock("Sell", purchased);
       await updateBalance("Sell");
       await updateTransaction("Sell");
       // change to Toast
-      alert(`Sold ${amount} shares of ${company}!`);
+      Alert.alert(
+        "Transaction successful",
+        `Sold ${amount} shares of ${company}!`
+      );
+      navigation.navigate("Trade", {
+        reload: true,
+      });
     }
-    navigation.navigate("Trade", {
-      reload: true,
-    });
   }
 
   return (
@@ -507,54 +489,6 @@ export default function StockDetail({ route, navigation }) {
             </Pressable>
           </View>
         ) : (
-          // <View
-          //   style={{
-          //     flexDirection: "row",
-          //     justifyContent: "space-around",
-          //     marginTop: 20,
-          //   }}
-          // >
-          //   <Pressable
-          //     onPress={handleBuy}
-          //     style={{
-          //       flex: 0.3,
-          //       backgroundColor: "#7BC17E",
-          //       borderRadius: 10,
-          //     }}
-          //   >
-          //     <Text
-          //       style={{
-          //         color: "white",
-          //         fontWeight: "600",
-          //         textAlign: "center",
-          //         padding: 5,
-          //         paddingHorizontal: 10,
-          //       }}
-          //     >
-          //       Buy
-          //     </Text>
-          //   </Pressable>
-          //   <Pressable
-          //     onPress={handleSell}
-          //     style={{
-          //       flex: 0.3,
-          //       backgroundColor: "#be2e33",
-          //       borderRadius: 10,
-          //     }}
-          //   >
-          //     <Text
-          //       style={{
-          //         color: "white",
-          //         fontWeight: "600",
-          //         textAlign: "center",
-          //         padding: 5,
-          //         paddingHorizontal: 10,
-          //       }}
-          //     >
-          //       Sell
-          //     </Text>
-          //   </Pressable>
-          // </View>
           <View
             style={{
               flexDirection: "row",

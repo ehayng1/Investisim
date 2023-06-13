@@ -175,7 +175,7 @@ export default function Home({ route, navigation }) {
             }}
           >
             {userData.weeklyProfit >= 0 ? "+" : "-"} ${" "}
-            {userData.weeklyProfit.toFixed(2)}
+            {Math.abs(userData.weeklyProfit.toFixed(2))}
           </Text>
 
           {userData.firstTrade === true ? (
@@ -227,6 +227,7 @@ export default function Home({ route, navigation }) {
               index < 3 && (
                 <PaintTransctions
                   key={index}
+                  name={element.name}
                   symbol={element.symbol}
                   amount={element.amount}
                 ></PaintTransctions>

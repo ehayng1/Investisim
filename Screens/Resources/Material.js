@@ -197,7 +197,6 @@ export function Week2({ navigation }) {
               }}
             >
               <Text style={[styles.subtitle]}>Audience</Text>
-
               <Text
                 style={{
                   color: "green",

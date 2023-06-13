@@ -214,7 +214,6 @@ export default function StockDetail({ route, navigation }) {
     } catch (e) {
       console.log("Error: ", e);
     }
-
     await updateDoc(
       doc(db, "users", uniqueId),
       type === "Buy"

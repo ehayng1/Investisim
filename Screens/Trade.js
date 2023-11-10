@@ -7,6 +7,7 @@ import {
   ScrollView,
   RefreshControl,
 } from "react-native";
+import { useIsFocused } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
 // import FetchStock from "../Components/FetchStock";
 import {
@@ -14,6 +15,10 @@ import {
   addDoc,
   setDoc,
   getDoc,
+  getDocs,
+  query,
+  where,
+  collection,
   updateDoc,
   increment,
   arrayUnion,
@@ -38,17 +43,6 @@ const styles = StyleSheet.create({
 
 function Trade({ route, navigation }) {
   const [refreshing, setRefreshing] = React.useState(false);
-
-  // const onRefresh = React.useCallback(() => {
-  //   setRefreshing(true);
-  //   getUserData();
-  //   setTimeout(() => {
-  //     setRefreshing(false);
-  //   }, 2000);
-  // }, []);
-  // const [data, setData] = React.useState([
-  //   { symbol: "", amount: 0, price: 0, balance: 0, time: 0 },
-  // ]);
   const [data, setData] = React.useState({
     1681957133011: {
       symbol: "",
@@ -60,7 +54,10 @@ function Trade({ route, navigation }) {
       lastUpdated: 1681957133011,
     },
   });
+  const [stocks, setStocks] = React.useState({ APPL: 1 });
+
   const [reload, setReload] = React.useState(false);
+  const isFocused = useIsFocused();
   let uniqueId;
 
   const getId = async () => {
@@ -72,29 +69,75 @@ function Trade({ route, navigation }) {
     console.log("Unique ID:", uniqueId);
   };
 
-  const getUserData = async () => {
-    const docRef = doc(db, "purchaseHistory", uniqueId);
-    // const docRef = doc(db, "holdingStack", uniqueId);
+  const getHoldingStack = async () => {
+    const docRef = doc(db, "holdingStack", uniqueId);
     const docSnap = await getDoc(docRef);
-    // docData = docSnap.data().history;
-    // console.log("History: ", docData);
     docData = docSnap.data();
-    console.log("Data: ", docData);
+    console.log("holdStocks: ", docData);
     if (docSnap.exists()) {
-      setData({});
-      setData({ ...docData });
+      {
+        // setData({ ...docData })
+        setStocks({ ...docData });
+      }
     } else {
       console.log("No such document!");
     }
   };
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
+  const onRefresh = React.useCallback(() => {
+    const init = async () => {
+      setRefreshing(true);
+      // const docRef = doc(db, "purchaseHistory", uniqueId);
+      // const docSnap = getDoc(docRef);
+      // docData = docSnap.data();
       getUserData();
-    });
-    return unsubscribe;
-  }, [navigation]);
 
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    };
+    init();
+  }, []);
+
+  const getUserData = async () => {
+    const docRef = doc(db, "purchaseHistory", uniqueId);
+
+    const docSnap = await getDoc(docRef);
+    docData = docSnap.data();
+    console.log("Data: ", docData);
+    if (docSnap.exists()) {
+      // await setDoc(doc(db, "logs", uniqueId), data);
+      // setData({ ...docData });
+      setData(JSON.parse(JSON.stringify(docData)));
+    } else {
+      console.log("No such document!");
+    }
+  };
+
+  // useEffect(() => {
+  //   const unsubscribe = navigation.addListener("focus", () => {
+  //     getUserData();
+  //   });
+  //   return unsubscribe;
+  // }, [navigation]);
+
+  // removes  objects with same key
+  function removeDuplicates(data) {
+    const uniqueKeys = new Set();
+
+    // Filter out objects with duplicate keys
+    const filteredData = Object.keys(data).reduce((result, key) => {
+      if (!uniqueKeys.has(key)) {
+        uniqueKeys.add(key);
+        result[key] = data[key];
+      }
+      return result;
+    }, {});
+
+    return filteredData;
+  }
+
+  // initial load
   useEffect(() => {
     const init = async () => {
       await getId();
@@ -103,12 +146,84 @@ function Trade({ route, navigation }) {
     init();
   }, []);
 
+  useEffect(() => {
+    const init = async () => {
+      await getUserData();
+    };
+    const unsubscribe = navigation.addListener("focus", () => {
+      init();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  // buggy!!!
+  // useEffect(() => {
+  //   const fetchDataOnFocus = async () => {
+  //     // getUserData();
+  //     getHoldingStack();
+  //   };
+  //   const unsubscribe = navigation.addListener("focus", fetchDataOnFocus);
+
+  //   return () => {
+  //     unsubscribe();
+  //   };
+  // }, [navigation]);
+
+  // trial using navigation data transfer
+  // useEffect(() => {
+  //   const unsubscribe = navigation.addListener("focus", () => {
+  //     console.log("Route param: ", route.params);
+  //     //when returns form handlebuy
+  //     // if (route.params?.addedHistory) {
+  //     //   let addedHistory = route.params?.addedHistory;
+  //     //   console.log("history: ", addedHistory);
+  //     //   // shallow copy
+  //     //   // const updatedData = { ...data };
+  //     //   // deep copy
+  //     //   let updatedData = JSON.parse(JSON.stringify(data));
+  //     //   console.log("Before Update: ", updatedData);
+  //     //   if (route.params?.addedHistory) {
+  //     //     console.log("Returned from handleBuy");
+  //     //     updatedData = {
+  //     //       ...updatedData,
+  //     //       ...addedHistory,
+  //     //     };
+  //     //   }
+  //     //   console.log("After Update: ", updatedData);
+  //     //   setData(updatedData);
+  //     // }
+  //     // //when returns from handlebuy
+  //     // else if (route.params?.returnedData) {
+  //     //   const returnedData = route.params?.returnedData;
+  //     //   // shallow copy
+  //     //   // const updatedData = { ...data };
+  //     //   // deep copy
+  //     //   const updatedData = JSON.parse(JSON.stringify(data));
+  //     //   console.log("Returned from handleSell");
+  //     //   updatedKey = returnedData.key;
+
+  //     //   if (updatedData[updatedKey]) {
+  //     //     updatedData[updatedKey] = {
+  //     //       ...updatedData[updatedKey],
+  //     //       amount: returnedData.finalAmount,
+  //     //     };
+  //     //   }
+  //     //   console.log("Updated Data: ", updatedData);
+  //     //   setData(updatedData);
+  //     // }
+  //     navigation.setParams({});
+  //     // console.log("No action taken from user!");
+  //   });
+
+  //   return unsubscribe;
+  // }, [route.params]);
+
   return (
     <ScrollView
       contentContainerStyle={styles.scrollView}
-      // refreshControl={
-      //   <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      // }
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     >
       <View style={{ marginHorizontal: 20 }}>
         <Text
@@ -138,11 +253,14 @@ function Trade({ route, navigation }) {
           }}
         ></View>
         <View>
-          {Object.keys(data).map(
+          {/* filter the array here to removee the dups */}
+          {/* {console.log(data)} */}
+
+          {Object.keys(removeDuplicates(data)).map(
             (el, index) =>
               index < 100 &&
               data[el].amount > 0 && (
-                <View key={new Date().getTime().toString()}>
+                <View key={el}>
                   <Pressable
                     onPress={() =>
                       navigation.navigate("StockDetail", {

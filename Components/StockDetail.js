@@ -9,9 +9,14 @@ import {
   ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect } from "react";
+import TradeTab from "../Screens/Trade";
 import * as Application from "expo-application";
 import StockChart from "./StockChart";
 import fetchStockInfo from "./fetchStockInfo";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 import {
   doc,
   addDoc,
@@ -37,6 +42,9 @@ export default function StockDetail({ route, navigation }) {
   const userData = [0, 0]; // balance, purchasedAmount
   const [refreshing, setRefreshing] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isSelling, setIsSelling] = React.useState(false);
+  const [isBuying, setIsBuying] = React.useState(false);
+  const [addedHistory, setAddedHistory] = React.useState();
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -67,7 +75,6 @@ export default function StockDetail({ route, navigation }) {
     if (stackData.exists()) {
       console.log("StockData: ", stackData.data());
       let data = stackData.data()[company];
-      console.log("Amount: ", data);
       if (data !== undefined) {
         // first purchase
         userData[1] = data;
@@ -85,7 +92,7 @@ export default function StockDetail({ route, navigation }) {
   //mock data
   company = route.params.symbol;
   purchasedPrice = route.params.price;
-  price = 500;
+  price = null;
   prevClose = 123;
   percent = 2.21;
   shortName = route.params.symbol;
@@ -99,6 +106,7 @@ export default function StockDetail({ route, navigation }) {
 
   // DO NOT ERASE!!!
   // comment when testing
+  // gets the stock information including the price.
   let stock = fetchStockInfo(route.params.symbol);
   let company = route.params.symbol;
   let price = stock[1];
@@ -173,15 +181,46 @@ export default function StockDetail({ route, navigation }) {
       console.log("Error: ", e);
     }
   };
+  let tempAddedHistory;
 
   const updateHistory = async (type) => {
     let typeFlag = type === "Buy" ? -1 : 1;
-    let tempBalance = userData[0] + amount * price * typeFlag;
+    // no longer have to do this since await of handlebuy.
+    // let tempBalance = userData[0] + amount * price * typeFlag;
+    let tempBalance = userData[0];
+    console.log("tempBalance: ", tempBalance);
     const DocRef = doc(db, "purchaseHistory", uniqueId);
 
     try {
       let currTime = new Date().getTime();
       let time = type === "Buy" ? currTime : route.params.firstPurchase;
+      tempAddedHistory = "Buy"
+        ? {
+            [time]: {
+              symbol: company,
+              price: price,
+              firstPurchase:
+                type === "Buy" ? currTime : route.params.firstPurchase,
+              lastUpdated: currTime,
+              amount: Number(amount),
+              balance: tempBalance,
+              isOpen: type === "Buy" ? true : false,
+            },
+          }
+        : {
+            [time]: {
+              symbol: company,
+              price: price,
+              firstPurchase:
+                type === "Buy" ? currTime : route.params.firstPurchase,
+              lastUpdated: currTime,
+              amount: route.params.amount - amount,
+              balance: tempBalance,
+              isOpen: type === "Buy" ? true : false,
+            },
+          };
+
+      // tempAddedHistory = { [time]: tempAddedHistory[time] };
       const res = await updateDoc(
         DocRef,
         type === "Buy"
@@ -247,53 +286,108 @@ export default function StockDetail({ route, navigation }) {
       console.log("Error: ", e);
     }
   };
+  function containsOnlyNumbers(input) {
+    return /^\d+$/.test(input);
+  }
 
   async function handleBuy() {
+    setIsBuying(true);
     let purchased;
-    await getUserData();
-    let total = amount * price;
-    console.log("total: ", total);
-    console.log(userData[0]);
+    // await getUserData();
+    // let total = amount * price;
+    // console.log("total: ", total);
+    // console.log(userData[0]);
     if (amount <= 0 || amount == null) {
       Alert.alert("ERROR", "Please enter amount of shares to buy.");
-    } else if (userData[0] < total) {
-      Alert.alert("ERROR", "Not enough balance!");
+      setIsBuying(false);
+    } else if (!containsOnlyNumbers(amount)) {
+      Alert.alert("ERROR", "Please enter a whole number.");
+      setIsBuying(false);
+    } else if (price == null) {
+      Alert.alert("ERROR", "Please wait for stock price to load.");
     } else {
-      updateBalance("Buy");
-      updateStock("Buy", purchased);
-      updateHistory("Buy");
-      updateTransaction("Buy");
-      Alert.alert(
-        "Transaction successful",
-        `Purchased ${amount} shares of ${company}!`
-      );
-      onChangeAmount(0);
+      await getUserData();
+      let total = amount * price;
+      if (userData[0] < total) {
+        Alert.alert("ERROR", "Not enough balance!");
+        setIsBuying(false);
+      } else {
+        console.log("total: ", total);
+        console.log(userData[0]);
+        await updateHistory("Buy");
+        await updateStock("Buy", purchased);
+        await updateBalance("Buy");
+        await updateTransaction("Buy");
+        setIsBuying(false);
+        Alert.alert(
+          "Transaction successful",
+          `Purchased ${amount} shares of ${company}!`
+        );
+        console.log("Addedhistory: ", tempAddedHistory);
+        // navigation.navigate('Root');
+        navigation.navigate("Trade", {
+          screen: "Trade",
+          params: {
+            addedHistory: tempAddedHistory,
+            buy: true,
+            key: route.params.key,
+            finalAmount: Number(amount),
+          },
+        });
+        onChangeAmount(0);
+      }
     }
   }
 
   async function handleSell() {
+    setIsSelling(true);
     let purchased;
-    await getUserData();
-    let total = amount * price;
-    console.log("total: ", total);
-    console.log(userData[0]);
+    // await getUserData();
+    // let total = amount * price;
+    // console.log("total: ", total);
+    // console.log(userData[0]);
     if (amount <= 0 || amount == null) {
       Alert.alert("ERROR", "Please enter amount of shares to sell.");
-    } else if (route.params.amount < amount) {
+      setIsSelling(false);
+    } else if (!containsOnlyNumbers(amount)) {
+      Alert.alert("ERROR", "Please enter a whole number.");
+      setIsSelling(false);
+    } else if (price == null) {
+      Alert.alert("ERROR", "Please wait for stock price to load.");
+    }
+    // if user trying to purchase more than the amount in "holdingStack"
+    else if (route.params.amount < amount) {
       Alert.alert("ERROR", "Not enough purchased stocks!");
+      setIsSelling(false);
     } else {
-      await updateHistory("Sell");
-      await updateStock("Sell", purchased);
-      await updateBalance("Sell");
-      await updateTransaction("Sell");
-      // change to Toast
-      Alert.alert(
-        "Transaction successful",
-        `Sold ${amount} shares of ${company}!`
-      );
-      navigation.navigate("Trade", {
-        reload: true,
-      });
+      await getUserData();
+      if (userData[1] < route.params.amount) {
+        console.log("amount: ", route.params.amount);
+        console.log("stocks to sell: ", userData[1]);
+        Alert.alert("ERROR", "You do not have enough stocks to sell!");
+        setIsSelling(false);
+      } else {
+        let total = amount * price;
+        console.log("total: ", total);
+        console.log(userData[0]);
+        await updateHistory("Sell");
+        await updateStock("Sell", purchased);
+        await updateBalance("Sell");
+        await updateTransaction("Sell");
+        setIsSelling(false);
+        Alert.alert(
+          "Transaction successful",
+          `Sold ${amount} shares of ${company}!`
+        );
+
+        navigation.navigate("Trade", {
+          reload: true,
+          returnedData: {
+            key: route.params.key,
+            finalAmount: route.params.amount - Number(amount),
+          },
+        });
+      }
     }
   }
 
@@ -467,14 +561,36 @@ export default function StockDetail({ route, navigation }) {
           >
             <Pressable
               onPress={handleBuy}
+              disabled={isBuying}
               style={{
                 flex: 0.5,
                 backgroundColor: "#7BC17E",
                 borderRadius: 10,
                 marginRight: "2%",
+                paddingTop: hp("0.5%"),
+                paddingBottom: hp("0.5%"),
               }}
             >
-              <Text
+              {isBuying ? (
+                <ActivityIndicator
+                  style={{ padding: hp("0.5%") }}
+                  color={"white"}
+                />
+              ) : (
+                <Text
+                  style={{
+                    color: "white",
+                    fontWeight: "600",
+                    textAlign: "center",
+                    padding: hp("0.5%"),
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  Buy
+                </Text>
+              )}
+
+              {/* <Text
                 style={{
                   color: "white",
                   fontWeight: "600",
@@ -484,7 +600,7 @@ export default function StockDetail({ route, navigation }) {
                 }}
               >
                 Buy
-              </Text>
+              </Text> */}
             </Pressable>
           </View>
         ) : (
@@ -498,14 +614,36 @@ export default function StockDetail({ route, navigation }) {
           >
             <Pressable
               onPress={handleSell}
+              disabled={isSelling}
               style={{
                 flex: 0.5,
                 backgroundColor: "#be2e33",
                 borderRadius: 10,
                 marginRight: "2%",
+                paddingTop: hp("0.5%"),
+                paddingBottom: hp("0.5%"),
               }}
             >
-              <Text
+              {isSelling ? (
+                <ActivityIndicator
+                  style={{ padding: hp("0.5%") }}
+                  color={"white"}
+                />
+              ) : (
+                <Text
+                  style={{
+                    color: "white",
+                    fontWeight: "600",
+                    textAlign: "center",
+                    padding: hp("0.5%"),
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  Sell
+                </Text>
+              )}
+
+              {/* <Text
                 style={{
                   color: "white",
                   fontWeight: "600",
@@ -515,7 +653,7 @@ export default function StockDetail({ route, navigation }) {
                 }}
               >
                 Sell
-              </Text>
+              </Text> */}
             </Pressable>
           </View>
         )}

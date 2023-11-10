@@ -106,6 +106,22 @@ function Stock({ navigation }) {
           <SearchStock nav={navigation}></SearchStock>
 
           <View style={{ marginHorizontal: "5%" }}>
+            <View style={{ marginBottom: "5%", marginTop: "10%" }}>
+              <Text style={{ fontSize: 21, fontWeight: "bold" }}>
+                Most popular stocks
+              </Text>
+            </View>
+            <StockHeader></StockHeader>
+            <View style={{ height: "0.1%", backgroundColor: "#808080" }}></View>
+            {stockData.slice(6).map((el, index) => (
+              <StockCard
+                key={new Date().getTime().toString() + index}
+                symbol={stockData[index + 6].symbol}
+                price={stockData[index + 6].price}
+                percent={stockData[index + 6].percent}
+                nav={navigation}
+              ></StockCard>
+            ))}
             <View style={{ marginBottom: "5%", marginTop: "5%" }}>
               <Text style={{ fontSize: 21, fontWeight: "bold" }}>
                 Top gainers today
@@ -149,22 +165,6 @@ function Stock({ navigation }) {
                     ></StockCard>
                   )
               )}
-            <View style={{ marginBottom: "5%", marginTop: "10%" }}>
-              <Text style={{ fontSize: 21, fontWeight: "bold" }}>
-                Most popular stocks
-              </Text>
-            </View>
-            <StockHeader></StockHeader>
-            <View style={{ height: "0.1%", backgroundColor: "#808080" }}></View>
-            {stockData.slice(6).map((el, index) => (
-              <StockCard
-                key={new Date().getTime().toString() + index}
-                symbol={stockData[index + 6].symbol}
-                price={stockData[index + 6].price}
-                percent={stockData[index + 6].percent}
-                nav={navigation}
-              ></StockCard>
-            ))}
           </View>
         </>
       )}

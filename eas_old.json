@@ -1,0 +1,32 @@
+{
+  "cli": {
+    "version": ">= 5.6.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "preview1": {
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "production": {}
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./pc-api-8624190404851205218-816-353e3e1ccd1c.json"
+      },
+      "ios": {
+        "appleId": "main@xprtis.com",
+        "ascAppId": "6449999432",
+        "appleTeamId": "H25QV2PV39"
+      }
+    }
+  }
+}

@@ -52,11 +52,12 @@ export default function Login(props) {
 
   const login = () => {
     if (email == "") {
-      setEmailError("Please input an email");
+      setEmailError("Please input an email.");
     } else if (password == "") {
-      setPasswordError("Please input a password");
+      setPasswordError("Please input a password.");
     }
     setLoading(true);
+    console.log("Logging In");
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         const setId = async (id) => {

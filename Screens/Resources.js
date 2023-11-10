@@ -108,7 +108,7 @@ function Resource({ navigation }) {
           console.log("Time value: ", value);
           let timeLeft;
           initTime = parseInt(value);
-          let endTime = initTime + 345600000; // 604800 * 1000 // 4 days
+          let endTime = initTime + 259200000; // 604800 * 1000 // 4 days
           // for test: smaller timer times.
           // let endTime = initTime + 500000; // 604800 * 1000 // 5 min
           // let endTime = initTime + 3000; // 604800 * 1000 // 3 sec
@@ -138,7 +138,7 @@ function Resource({ navigation }) {
               console.log("Initial Date Recorded!", time);
               // initial setting
               // let curTime = new Date().getTime();
-              setTimeLeft(345600);
+              setTimeLeft(259200);
               setId(new Date().getTime().toString());
               setStage(0);
             } catch (e) {

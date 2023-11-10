@@ -22,6 +22,10 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import options from "../config";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 const screenWidth = Dimensions.get("window").width * 0.95;
 export default function Leaderboard({ route, navigation }) {
   navigation.setOptions({ title: "Leaderboard" });
@@ -122,7 +126,7 @@ export default function Leaderboard({ route, navigation }) {
       });
     }
     console.log(balance);
-    tempPriceData.sort((a, b) => b.profit - a.profit);
+    // tempPriceData.sort((a, b) => b.profit - a.profit);
     setPriceData(tempPriceData);
   };
 
@@ -180,7 +184,7 @@ export default function Leaderboard({ route, navigation }) {
           <View
             style={{
               backgroundColor: "#e8e2c2",
-              height: "50%",
+              height: hp("30%"),
               // heigth: 300,
               // borderBottomEndRadius: 30,
               // borderBottomLeftRadius: 30,
@@ -193,110 +197,135 @@ export default function Leaderboard({ route, navigation }) {
                 justifyContent: "space-around",
               }}
             >
-              {priceData.map(
-                (el, index) =>
-                  priceData.length > 3 &&
-                  index < 3 && (
-                    <View
-                      key={new Date().getTime().toString()}
-                      style={[
-                        { marginTop: index === 1 ? 30 : 50 },
-                        { marginBottom: index === 1 ? 25 : 5 },
-                        // { paddingBottom: index === 1 ? 0 : 10 },
-                        {
-                          flexDirection: "column",
-                          paddingTop: 15,
-                          paddingBottom: 10,
-                          borderRadius: 20,
-                          backgroundColor: "#ffbc76",
-                        },
-                      ]}
-                    >
-                      <Image
-                        style={{ width: 100, height: 100, marginBottom: 5 }}
-                        // source={require("../data/" + 1 + ".png")}
-                        source={iconPath[index].src}
-                      />
-                      <Text
-                        style={{
-                          color: "#943210",
-                          fontSize: 16,
-                          fontWeight: "600",
-                          textAlign: "center",
-                        }}
+              {/* {priceData.map( */}
+              {priceData
+                .sort((a, b) => b.profit - a.profit)
+                .map(
+                  (el, index) =>
+                    priceData.length >= 3 &&
+                    index < 3 && (
+                      <View
+                        key={new Date().getTime().toString()}
+                        style={[
+                          { marginTop: index === 1 ? 30 : 50 },
+                          { marginBottom: index === 1 ? 25 : 5 },
+                          // { paddingBottom: index === 1 ? 0 : 10 },
+                          {
+                            width: wp("25%"),
+                            paddingHorizontal: wp("1%"),
+                            flexDirection: "column",
+                            paddingTop: 15,
+                            paddingBottom: 10,
+                            borderRadius: 20,
+                            backgroundColor: "#ffbc76",
+                          },
+                        ]}
                       >
-                        {index === 0 && priceData[1].name}
-                        {index === 1 && priceData[0].name}
-                        {index === 2 && priceData[2].name}
-                      </Text>
-                      <Text
-                        style={{
-                          marginTop: 5,
-                          color: "#540000",
-                          fontSize: 12,
-                          fontWeight: "400",
-                          textAlign: "center",
-                        }}
-                      >
-                        $ {index === 0 && priceData[1].profit}
-                        {index === 1 && priceData[0].profit}
-                        {index === 2 && priceData[2].profit}
-                      </Text>
-                    </View>
-                  )
-              )}
+                        <Image
+                          style={{ width: 100, height: 100, marginBottom: 5 }}
+                          // source={require("../data/" + 1 + ".png")}
+                          source={iconPath[index].src}
+                        />
+                        <View
+                          style={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: "#943210",
+                              fontSize: 16,
+                              fontWeight: "600",
+                              textAlign: "center",
+                            }}
+                          >
+                            {index === 0 && priceData[1].name}
+                            {index === 1 && priceData[0].name}
+                            {index === 2 && priceData[2].name}
+                          </Text>
+                        </View>
+                        <Text
+                          style={{
+                            marginTop: 5,
+                            color: "#540000",
+                            fontSize: 12,
+                            fontWeight: "400",
+                            textAlign: "center",
+                          }}
+                        >
+                          $ {index === 0 && priceData[1].profit}
+                          {index === 1 && priceData[0].profit}
+                          {index === 2 && priceData[2].profit}
+                        </Text>
+                      </View>
+                    )
+                )}
             </View>
           </View>
           <View style={{ marginTop: 45, marginHorizontal: "5%" }}>
-            {priceData.map(
-              (el, index) =>
-                index > 2 && (
-                  <View
-                    key={new Date().getTime().toString()}
-                    style={{
-                      flexDirection: "column",
-                    }}
-                  >
+            {/* {priceData.map( */}
+            {priceData
+              .sort((a, b) => b.profit - a.profit)
+              .map(
+                (el, index) =>
+                  index > 2 && (
                     <View
+                      key={new Date().getTime().toString()}
                       style={{
-                        marginLeft: 20,
-                        marginHorizontal: 10,
-                        flexDirection: "row",
-                        alignItems: "center",
+                        flexDirection: "column",
                       }}
                     >
-                      <Text
-                        style={{ flex: 0.2, fontSize: 16, fontWeight: "600" }}
-                      >
-                        {index + 1}
-                      </Text>
-                      <Text
-                        style={{ flexGrow: 1, fontWeight: "500", fontSize: 18 }}
-                      >
-                        {el.name}
-                      </Text>
-                      <Text
+                      <View
                         style={{
-                          marginRight: 10,
-                          fontWeight: "500",
-                          fontSize: 16,
-                          color: "#5A5A5A",
+                          marginLeft: 20,
+                          marginHorizontal: 10,
+                          flexDirection: "row",
+                          alignItems: "center",
                         }}
                       >
-                        {/* ${el.profit} */}$ {el.profit}
-                      </Text>
+                        <Text
+                          style={{
+                            width: wp("7.5%"),
+                            // marginRight: wp("1%"),
+                            fontSize: 16,
+                            fontWeight: "600",
+                          }}
+                        >
+                          {index + 1}
+                        </Text>
+                        <Text
+                          style={{
+                            // flexGrow: 1,
+                            width: wp("55%"),
+                            fontWeight: "500",
+                            fontSize: 18,
+                          }}
+                        >
+                          {el.name}
+                        </Text>
+                        <Text
+                          style={{
+                            marginRight: 10,
+                            fontWeight: "500",
+                            fontSize: 16,
+                            color: "#5A5A5A",
+                          }}
+                        >
+                          {/* ${el.profit} */}$ {el.profit}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          height: 1,
+                          marginBottom: 15,
+                          marginTop: 15,
+                          backgroundColor: "#808080",
+                        }}
+                      ></View>
                     </View>
-                    <View
-                      style={{
-                        height: 1,
-                        marginBottom: 15,
-                        marginTop: 15,
-                        backgroundColor: "#808080",
-                      }}
-                    ></View>
-                  </View>
-                )
-            )}
+                  )
+              )}
           </View>
         </>
       )}

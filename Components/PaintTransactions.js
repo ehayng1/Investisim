@@ -1,26 +1,29 @@
 import { StyleSheet, Text, View, ScrollView } from "react-native";
-
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 export default function PaintTransctions({ symbol, amount, name }) {
   return (
     <View
       style={{
         backgroundColor: "#EDE9D0",
-        height: "8%",
+        maxHeight: hp("8%"),
         borderRadius: 10,
-        marginBottom: "2%",
+        marginBottom: hp("1%"),
       }}
     >
       <View
         style={{
           flexDirection: "row",
           alignItems: "center",
-          marginBottom: "5%",
+          marginBottom: hp("1%"),
         }}
       >
         <View
           style={{
             flexGrow: 1,
-            marginLeft: "4%",
+            marginLeft: wp("3%"),
             justifyContent: "center",
           }}
         >
@@ -28,13 +31,15 @@ export default function PaintTransctions({ symbol, amount, name }) {
             style={{
               fontSize: 16,
               fontWeight: "500",
-              marginBottom: "2%",
-              marginTop: "4%",
+              marginTop: hp("1%"),
+              marginBottom: hp("0.5%"),
             }}
           >
             {symbol}
           </Text>
-          <Text style={{ fontSize: 14, color: "#5A5742", marginLeft: "1%" }}>
+          <Text
+            style={{ fontSize: 14, color: "#5A5742", marginLeft: wp("1.5%") }}
+          >
             {name}
           </Text>
         </View>

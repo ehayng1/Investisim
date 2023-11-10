@@ -39,7 +39,7 @@ const MyTheme = {
   },
 };
 
-function MyTabs({ navigation, route }) {
+export function MyTabs({ navigation, route }) {
   // console.log("nav: ", navigation);
   // console.log("route: ", route);
   return (

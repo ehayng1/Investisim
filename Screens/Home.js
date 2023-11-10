@@ -61,7 +61,7 @@ export default function Home({ route, navigation }) {
     }
     const userRef = doc(db, "users", uniqueId);
     const userSnap = await getDoc(userRef);
-    console.log("Data: ", userSnap.data());
+    // console.log("Data: ", userSnap.data());
     if (userSnap.exists()) {
       setUserData({ ...userSnap.data() });
     } else {
@@ -218,7 +218,7 @@ export default function Home({ route, navigation }) {
             </Text>
           </View>
         )}
-        {console.log("HIS: ", historyData)}
+        {/* {console.log("HIS: ", historyData)} */}
         {/* {console.log("Reverse: ", historyData.reverse())} */}
         {userData.firstTrade &&
           historyData.map(

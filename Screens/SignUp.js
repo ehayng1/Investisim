@@ -109,8 +109,8 @@ export default function SignUp(props) {
           email: email,
           name: name,
           balance: 5000,
-          balanceHistory: [10000, 10000, 10000, 10000, 10000],
-          revenueHistory: [10000, 10000, 10000, 10000, 10000],
+          balanceHistory: [5000, 5000, 5000, 5000, 5000],
+          revenueHistory: [5000, 5000, 5000, 5000, 5000],
           weeklyProfit: 0,
         });
         await setDoc(doc(db, "transaction", uniqueId), {

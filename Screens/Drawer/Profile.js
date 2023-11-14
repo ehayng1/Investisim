@@ -56,6 +56,34 @@ export default function Profile({ route, navigation }) {
     };
     init();
   }
+  async function initialize() {
+    const q = query(collection(db, "users"));
+
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      // console.log(doc.id);
+      removeAllData(doc.id);
+    });
+  }
+
+  async function removeAllData(id) {
+    // uniqueId = "rhCP6eLfbkdFx7LptV0MOM4tIhl1";
+    const stockRef = doc(db, "holdingStack", id);
+    const historyRef = doc(db, "purchaseHistory", id);
+    const transcationRef = doc(db, "transaction", id);
+    const userRef = doc(db, "users", id);
+
+    // initialize with empty object
+    await setDoc(stockRef, {});
+    await setDoc(historyRef, {});
+    await setDoc(transcationRef, {});
+    await updateDoc(userRef, {
+      balance: 5000,
+      balanceHistory: [5000, 5000, 5000, 5000, 5000],
+      revenueHistory: [5000, 5000, 5000, 5000, 5000],
+      weeklyProfit: 0,
+    });
+  }
 
   const deleteUserAccount = async () => {
     console.log(user);
@@ -131,6 +159,7 @@ export default function Profile({ route, navigation }) {
     <ScrollView>
       <View style={{ marginLeft: 20 }}></View>
       <View style={{ marginHorizontal: 20 }}>
+        <Button title="Initialize ALL user data" onPress={initialize}></Button>
         <View
           style={{
             flexDirection: "row",

@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Dimensions, RefreshControl } from "react-native";
 import { iconPath } from "../data/iconPath";
-import React, { useState, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   doc,
   addDoc,
@@ -26,9 +26,9 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
+import { LanguageContext } from "../context/languageContext";
 const screenWidth = Dimensions.get("window").width * 0.95;
 export default function Leaderboard({ route, navigation }) {
-  navigation.setOptions({ title: "Leaderboard" });
   const [refreshing, setRefreshing] = React.useState(false);
   const [userData, setUserData] = React.useState([{}]);
   const [stockData, setStockData] = React.useState({ AAPL: 222 });
@@ -36,6 +36,8 @@ export default function Leaderboard({ route, navigation }) {
   const [name, setName] = React.useState([]);
   const [balance, setBalance] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
+  navigation.setOptions({ title: isKorean ? "랭킹" : "Leaderboard" });
 
   // const onRefresh = React.useCallback(async () => {
   //   setRefreshing(true);
@@ -52,6 +54,7 @@ export default function Leaderboard({ route, navigation }) {
   let tempPriceData = [];
 
   let symbolStr = "";
+  let stringCount = 0;
   let tempUserData = [];
   let tempData = {};
 
@@ -82,36 +85,80 @@ export default function Leaderboard({ route, navigation }) {
 
       for (let i = 0; i < temp.length; i++) {
         symbolStr = symbolStr + "%2C" + temp[i];
+        stringCount = stringCount + 1;
       }
     });
-    console.log("userData: ", userData);
+    // console.log("userData: ", userData);
     setUserData(tempUserData);
 
     console.log("Big string: ", symbolStr);
+    console.log("Number of symbols in string: ", stringCount);
   };
 
-  const fetchPrices = async () => {
-    symbolStr = symbolStr.slice(3);
-    fetch(
-      "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols=" +
-        symbolStr,
-      options
-    )
-      .then((response) => response.json())
-      .then((response) => {
-        let data = response.quoteResponse.result;
+  // const fetchPrices = async () => {
+  //   // console.log("symbolStr", symbolStr);
+  //   symbolStr = symbolStr.slice(3);
+  //   fetch(
+  //     "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols=" +
+  //       symbolStr,
+  //     options
+  //   )
+  //     .then((response) => response.json())
+  //     .then((response) => {
+  //       let data = response.quoteResponse.result;
 
-        data.forEach((el) => {
-          tempData[el.symbol] = el.regularMarketPrice;
-        });
-        setStockData(tempData);
-      })
-      .catch((err) => console.error("ERROR: ", err));
+  //       console.log("fetched data: ", data);
+
+  //       data.forEach((el) => {
+  //         tempData[el.symbol] = el.regularMarketPrice;
+  //         console.log(el.symbol);
+  //         console.log(el.regularMarketPrice);
+  //         // if (el.regularMarketPrice == NaN) {
+  //       });
+  //       setStockData(tempData);
+  //     })
+  //     .catch((err) => console.error("ERROR: ", err));
+  // };
+
+  const fetchPrices = async () => {
+    // Split the symbolStr into chunks of 50 symbols
+    const symbols = symbolStr.slice(1).split("%2C"); // Remove the leading %2C and split by %2C
+    const symbolChunks = [];
+
+    for (let i = 0; i < symbols.length; i += 50) {
+      const chunk = symbols.slice(i, i + 50);
+      symbolChunks.push(chunk.join("%2C"));
+    }
+
+    const tempData = {};
+
+    for (const chunk of symbolChunks) {
+      try {
+        const response = await fetch(
+          "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols=" +
+            chunk,
+          options
+        );
+
+        const data = await response.json();
+
+        if (data.quoteResponse && data.quoteResponse.result) {
+          data.quoteResponse.result.forEach((el) => {
+            tempData[el.symbol] = el.regularMarketPrice;
+          });
+        }
+      } catch (err) {
+        console.error("ERROR: ", err);
+      }
+    }
+
+    console.log("fetched data: ", tempData);
+    setStockData(tempData);
   };
 
   // calculates revenues for each user
   const calculateRevenue = async () => {
-    console.log("cal: ", userData);
+    // console.log("cal: ", userData);
     for (let i = 0; i < userData.length; i++) {
       let profit = 0;
       let user = userData[i];
@@ -125,41 +172,27 @@ export default function Leaderboard({ route, navigation }) {
         profit: (profit + balance[i]).toFixed(2),
       });
     }
-    console.log(balance);
+    // console.log(balance);
     // tempPriceData.sort((a, b) => b.profit - a.profit);
     setPriceData(tempPriceData);
   };
-
-  // useEffect(() => {
-  //   const init = async () => {
-  //     await getName();
-  //     console.log("name: ", name);
-  //     await getUserData();
-  //     console.log("userData: ", userData);
-  //     await fetchPrices();
-  //     console.log("tempData: ", tempData);
-  //     setIsLoading(false);
-  //     console.log("Loading done!");
-  //   };
-  //   init();
-  // }, []);
 
   useEffect(() => {
     const init = async () => {
       await calculateRevenue();
     };
     init();
-    console.log("priceData: ", priceData);
+    // console.log("priceData: ", priceData);
   }, [stockData]);
   // 56286
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", async () => {
       await getName();
-      console.log("name: ", name);
+      // console.log("name: ", name);
       await getUserData();
-      console.log("userData: ", userData);
+      // console.log("userData: ", userData);
       await fetchPrices();
-      console.log("priceData: ", tempData);
+      // console.log("priceData: ", tempData);
       setIsLoading(false);
       console.log("Loading done!");
     });
@@ -176,7 +209,7 @@ export default function Leaderboard({ route, navigation }) {
         <View style={{ marginTop: "60%" }}>
           <ActivityIndicator size="large" color="#D84315" />
           <Text style={{ textAlign: "center", fontSize: 16, marginTop: 10 }}>
-            Reading data from server...
+            {isKorean ? "데이터 로딩중..." : "Reading data from server..."}
           </Text>
         </View>
       ) : (
@@ -265,6 +298,7 @@ export default function Leaderboard({ route, navigation }) {
           </View>
           <View style={{ marginTop: 45, marginHorizontal: "5%" }}>
             {/* {priceData.map( */}
+
             {priceData
               .sort((a, b) => b.profit - a.profit)
               .map(

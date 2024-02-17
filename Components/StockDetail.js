@@ -8,7 +8,7 @@ import {
   Pressable,
   ActivityIndicator,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import TradeTab from "../Screens/Trade";
 import * as Application from "expo-application";
 import StockChart from "./StockChart";
@@ -32,6 +32,8 @@ import {
 import { db } from "../firebaseConfig";
 import { getAuth } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getStockInfo } from "../utils/getStockInfo";
+import { LanguageContext } from "../context/languageContext";
 
 export default function StockDetail({ route, navigation }) {
   const [id, setId] = React.useState();
@@ -45,13 +47,34 @@ export default function StockDetail({ route, navigation }) {
   const [isSelling, setIsSelling] = React.useState(false);
   const [isBuying, setIsBuying] = React.useState(false);
   const [addedHistory, setAddedHistory] = React.useState();
+  const [priceState, setPriceState] = React.useState();
+  const [havePriceChanged, setHavePriceChanged] = React.useState(false);
 
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
-  }, []);
+  const [stockInfo, setStockInfo] = React.useState();
+  const [overview, setOverview] = React.useState([
+    [
+      ["Previous Close", 123],
+      ["Open", 123],
+      ["Day High", 123],
+      ["Day Low", 123],
+      ["Volume", 123],
+      ["Market Cap", 123],
+    ],
+  ]);
+  const [stock, setStock] = React.useState({
+    symbol: "",
+    price: 0,
+    percent: 0,
+    prevClose: 0,
+    dayLow: 0,
+    dayHigh: 0,
+    openPrice: 0,
+    volume: 0,
+    mktCap: 0,
+    shortName: "",
+  });
+
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
 
   const getId = async () => {
     // setIsLoading(true);
@@ -86,7 +109,11 @@ export default function StockDetail({ route, navigation }) {
   };
 
   useEffect(() => {
-    getId();
+    const init = async () => {
+      await getId();
+      // await getStockInfo();
+    };
+    init();
   }, []);
 
   //mock data
@@ -104,32 +131,73 @@ export default function StockDetail({ route, navigation }) {
   volume = 10;
   mktCap = 11;
 
-  // DO NOT ERASE!!!
-  // comment when testing
-  // gets the stock information including the price.
-  let stock = fetchStockInfo(route.params.symbol);
   let company = route.params.symbol;
-  let price = stock[1];
-  let prevClose = stock[2];
-  let percent = stock[3];
-  let shortName = stock[4];
-  let dayLow = stock[6];
-  let dayHigh = stock[7];
-  let openPrice = stock[8];
-  let fiftyTwoWeekLow = stock[9];
-  let fiftyTwoWeekHigh = stock[10];
-  let volume = stock[11];
-  let mktCap = stock[12];
-  // setIsLoading(false);
 
-  const overview = [
-    ["Previous Close", prevClose],
-    ["Open", openPrice],
-    ["Day High", dayHigh],
-    ["Day Low", dayLow],
-    ["Volume", volume],
-    ["Market Cap", mktCap],
-  ];
+  useEffect(() => {
+    const init = async () => {
+      try {
+        console.log("Now getting stock Info...");
+        const tempStock = await getStockInfo(route.params.symbol);
+        console.log("tempStock: ", tempStock);
+        // setStock({ ...tempStock });
+        setStock(tempStock[0]); // Assuming tempStock is an array with a single object
+        setOverview(
+          isKorean
+            ? [
+                ["전일 종가", tempStock[0].prevClose],
+                ["시가", tempStock[0].openPrice],
+                ["당일 고가", tempStock[0].dayHigh],
+                ["당일 저가", tempStock[0].dayLow],
+                ["거래량", tempStock[0].volume],
+                ["시가 총액", tempStock[0].mktCap],
+              ]
+            : [
+                ["Previous Close", tempStock[0].prevClose],
+                ["Open", tempStock[0].openPrice],
+                ["Day High", tempStock[0].dayHigh],
+                ["Day Low", tempStock[0].dayLow],
+                ["Volume", tempStock[0].volume],
+                ["Market Cap", tempStock[0].mktCap],
+              ]
+        );
+        // setStock((prevStock) => ({ ...prevStock, ...tempStock }));
+        // setOverview([
+        //   ["Previous Close", tempStock.prevClose],
+        //   ["Open", tempStock.openPrice],
+        //   ["Day High", tempStock.dayHigh],
+        //   ["Day Low", tempStock.dayLow],
+        //   ["Volume", tempStock.volume],
+        //   ["Market Cap", tempStock.mktCap],
+        // ]);
+      } catch (error) {
+        console.error("Error getting stock info: ", error);
+      }
+    };
+    init();
+  }, []);
+
+  useEffect(() => {
+    const init = async () => {
+      setPriceState(stock.price);
+    };
+    init();
+  }, [stock.price]);
+
+  // disables buy/sell after 5 min.
+  useEffect(() => {
+    setTimeout(() => {
+      setHavePriceChanged(true);
+    }, 300000);
+  }, []);
+
+  // const overview = [
+  //   ["Previous Close", prevClose],
+  //   ["Open", openPrice],
+  //   ["Day High", dayHigh],
+  //   ["Day Low", dayLow],
+  //   ["Volume", volume],
+  //   ["Market Cap", mktCap],
+  // ];
 
   function handleChartChange(type) {
     if (type === "1d") {
@@ -154,10 +222,10 @@ export default function StockDetail({ route, navigation }) {
     try {
       const res = await updateDoc(doc(db, "users", uniqueId), {
         // "holdingStack."+compnay : increment(amount)
-        balance: increment(amount * price * type),
+        balance: increment(amount * stock.price * type),
         firstTrade: true,
       });
-      userData[0] = amount * price * type;
+      userData[0] = amount * stock.price * type;
       console.log("Balance Updated!", res);
     } catch (e) {
       console.log("Error: ", e);
@@ -171,8 +239,8 @@ export default function StockDetail({ route, navigation }) {
       const response = await updateDoc(ref, {
         history: arrayUnion({
           symbol: company,
-          name: shortName,
-          amount: price * amount * typeFlag,
+          name: stock.shortName,
+          amount: stock.price * amount * typeFlag,
           time: new Date().getTime(),
         }),
       });
@@ -198,7 +266,7 @@ export default function StockDetail({ route, navigation }) {
         ? {
             [time]: {
               symbol: company,
-              price: price,
+              price: stock.price,
               firstPurchase:
                 type === "Buy" ? currTime : route.params.firstPurchase,
               lastUpdated: currTime,
@@ -227,7 +295,7 @@ export default function StockDetail({ route, navigation }) {
           ? {
               [time]: {
                 symbol: company,
-                price: price,
+                price: stock.price,
                 firstPurchase:
                   type === "Buy" ? currTime : route.params.firstPurchase,
                 lastUpdated: currTime,
@@ -239,7 +307,7 @@ export default function StockDetail({ route, navigation }) {
           : {
               [time]: {
                 symbol: company,
-                price: price,
+                price: stock.price,
                 firstPurchase:
                   type === "Buy" ? currTime : route.params.firstPurchase,
                 lastUpdated: currTime,
@@ -261,7 +329,7 @@ export default function StockDetail({ route, navigation }) {
           }
         : {
             balanceHistory: arrayUnion(tempBalance),
-            weeklyProfit: increment(price - purchasedPrice),
+            weeklyProfit: increment(stock.price - purchasedPrice),
           }
     );
   };
@@ -293,23 +361,64 @@ export default function StockDetail({ route, navigation }) {
   async function handleBuy() {
     setIsBuying(true);
     let purchased;
+    let total = amount * stock.price;
     // await getUserData();
     // let total = amount * price;
     // console.log("total: ", total);
     // console.log(userData[0]);
+
+    console.log(amount);
+    console.log(priceState);
+    console.log(priceState * amount);
     if (amount <= 0 || amount == null) {
-      Alert.alert("ERROR", "Please enter amount of shares to buy.");
+      {
+        isKorean
+          ? Alert.alert("에러", "수량을 입력해 주세요.")
+          : Alert.alert("ERROR", "Please enter amount of shares to buy.");
+      }
       setIsBuying(false);
     } else if (!containsOnlyNumbers(amount)) {
-      Alert.alert("ERROR", "Please enter a whole number.");
+      {
+        isKorean
+          ? Alert.alert("에러", "정수를 입력해 주세요.")
+          : Alert.alert("ERROR", "Please enter a whole number.");
+      }
       setIsBuying(false);
-    } else if (price == null) {
-      Alert.alert("ERROR", "Please wait for stock price to load.");
+    } else if (stock.price == null) {
+      {
+        isKorean
+          ? Alert.alert("에러", "주식정보가 로딩중입니다.")
+          : Alert.alert("ERROR", "Please wait for stock price to load.");
+      }
+    } else if (isNaN(total)) {
+      {
+        isKorean
+          ? Alert.alert("에러", "주식 가격을 로딩중 에러가 발생했습니다.")
+          : Alert.alert("ERROR", "Error loading price of the stock.");
+      }
+    } else if (havePriceChanged) {
+      {
+        isKorean
+          ? Alert.alert(
+              "에러",
+              "주식 가격이 변경되었습니다. 페이지를 새로고침 해주세요."
+            )
+          : Alert.alert(
+              "ERROR",
+              "Stock price have changed. Please reload the page."
+            );
+      }
+      setIsBuying(false);
     } else {
       await getUserData();
-      let total = amount * price;
+
       if (userData[0] < total) {
-        Alert.alert("ERROR", "Not enough balance!");
+        {
+          isKorean
+            ? Alert.alert("에러", "예수금이 부족합니다.")
+            : Alert.alert("ERROR", "Not enough balance!");
+        }
+
         setIsBuying(false);
       } else {
         console.log("total: ", total);
@@ -319,12 +428,20 @@ export default function StockDetail({ route, navigation }) {
         await updateBalance("Buy");
         await updateTransaction("Buy");
         setIsBuying(false);
-        Alert.alert(
-          "Transaction successful",
-          `Purchased ${amount} shares of ${company}!`
-        );
+        {
+          isKorean
+            ? Alert.alert(
+                "거래 성공",
+                `${company}의 주식 ${amount} 수량을 구매했습니다!`
+              )
+            : Alert.alert(
+                "Transaction successful",
+
+                `Purchased ${amount} shares of ${company}!`
+              );
+        }
+
         console.log("Addedhistory: ", tempAddedHistory);
-        // navigation.navigate('Root');
         navigation.navigate("Trade", {
           screen: "Trade",
           params: {
@@ -342,32 +459,75 @@ export default function StockDetail({ route, navigation }) {
   async function handleSell() {
     setIsSelling(true);
     let purchased;
+    let total = amount * stock.price;
     // await getUserData();
     // let total = amount * price;
     // console.log("total: ", total);
     // console.log(userData[0]);
     if (amount <= 0 || amount == null) {
-      Alert.alert("ERROR", "Please enter amount of shares to sell.");
+      {
+        isKorean
+          ? Alert.alert("에러", "수량을 입력해 주세요.")
+          : Alert.alert("ERROR", "Please enter amount of shares to sell.");
+      }
+
       setIsSelling(false);
     } else if (!containsOnlyNumbers(amount)) {
-      Alert.alert("ERROR", "Please enter a whole number.");
+      {
+        isKorean
+          ? Alert.alert("에러", "정수를 입력해 주세요.")
+          : Alert.alert("ERROR", "Please enter a whole number.");
+      }
       setIsSelling(false);
-    } else if (price == null) {
-      Alert.alert("ERROR", "Please wait for stock price to load.");
+    } else if (stock.price == null) {
+      {
+        isKorean
+          ? Alert.alert("에러", "주식정보가 로딩중입니다.")
+          : Alert.alert("ERROR", "Please wait for stock price to load.");
+      }
+    } else if (isNaN(stock.price) || isNaN(total)) {
+      {
+        isKorean
+          ? Alert.alert("에러", "주식 가격을 로딩중 에러가 발생했습니다.")
+          : Alert.alert("ERROR", "Error loading price of the stock.");
+      }
     }
     // if user trying to purchase more than the amount in "holdingStack"
     else if (route.params.amount < amount) {
-      Alert.alert("ERROR", "Not enough purchased stocks!");
+      {
+        isKorean
+          ? Alert.alert("에러", "보유한 수량이 부족합니다!")
+          : Alert.alert("ERROR", "Not enough purchased stocks!");
+      }
+
+      setIsSelling(false);
+    } else if (havePriceChanged) {
+      {
+        isKorean
+          ? Alert.alert(
+              "에러",
+              "주식 가격이 변경되었습니다. 페이지를 새로고침 해주세요."
+            )
+          : Alert.alert(
+              "ERROR",
+              "Stock price have changed. Please reload the page."
+            );
+      }
+
       setIsSelling(false);
     } else {
       await getUserData();
       if (userData[1] < route.params.amount) {
         console.log("amount: ", route.params.amount);
         console.log("stocks to sell: ", userData[1]);
-        Alert.alert("ERROR", "You do not have enough stocks to sell!");
+        {
+          isKorean
+            ? Alert.alert("에러", "보유한 수량이 부족합니다!")
+            : Alert.alert("ERROR", "You do not have enough stocks to sell!");
+        }
+
         setIsSelling(false);
       } else {
-        let total = amount * price;
         console.log("total: ", total);
         console.log(userData[0]);
         await updateHistory("Sell");
@@ -375,10 +535,17 @@ export default function StockDetail({ route, navigation }) {
         await updateBalance("Sell");
         await updateTransaction("Sell");
         setIsSelling(false);
-        Alert.alert(
-          "Transaction successful",
-          `Sold ${amount} shares of ${company}!`
-        );
+        {
+          isKorean
+            ? Alert.alert(
+                "거래 성공",
+                `${company}의 주식 ${amount} 수량을 판매했습니다!`
+              )
+            : Alert.alert(
+                "Transaction successful",
+                `Sold ${amount} shares of ${company}!`
+              );
+        }
 
         navigation.navigate("Trade", {
           reload: true,
@@ -396,7 +563,9 @@ export default function StockDetail({ route, navigation }) {
       <View style={{ marginHorizontal: 10, marginTop: 20 }}>
         <View style={{}}>
           <Text style={{ fontSize: 18, fontWeight: 700 }}>{company}</Text>
-          <Text style={{ fontSize: 12, color: "#808080" }}>{shortName}</Text>
+          <Text style={{ fontSize: 12, color: "#808080" }}>
+            {stock.shortName}
+          </Text>
         </View>
         <View
           style={{
@@ -406,14 +575,14 @@ export default function StockDetail({ route, navigation }) {
             marginBottom: 30,
           }}
         >
-          <Text style={{ fontSize: 28, fontWeight: 700 }}>${price}</Text>
+          <Text style={{ fontSize: 28, fontWeight: 700 }}>${stock.price}</Text>
           <Text
             style={[
               { marginLeft: 10 },
               percent > 0 ? { color: "green" } : { color: "red" },
             ]}
           >
-            {percent}%
+            {stock.percent}%
           </Text>
         </View>
         {/* comment when testing */}
@@ -486,7 +655,7 @@ export default function StockDetail({ route, navigation }) {
             marginLeft: 10,
           }}
         >
-          Overview
+          {isKorean ? "요약" : "Overview"}
         </Text>
 
         {overview.map((element, index) => (
@@ -523,13 +692,15 @@ export default function StockDetail({ route, navigation }) {
               marginLeft: 10,
             }}
           >
-            Shares
+            {isKorean ? "수량" : "Shares"}
           </Text>
           <TextInput
             textAlign="right"
             style={{ marginRight: 10 }}
             value={amount}
-            placeholder="Type the amount of shares"
+            placeholder={
+              isKorean ? "수량을 입력하세요" : "Type the amount of shares"
+            }
             onChangeText={onChangeAmount}
           ></TextInput>
         </View>
@@ -542,10 +713,13 @@ export default function StockDetail({ route, navigation }) {
               fontWeight: "500",
             }}
           >
-            Total
+            {isKorean ? "총액" : "Total"}
           </Text>
           <Text style={{ marginRight: 10, justifyContent: "flex-end" }}>
-            {amount > 0 && "$ " + amount * price}
+            {console.log(amount * stock.price)}
+            {amount > 0 && "$ " + amount * stock.price}
+
+            {/* {amount > 0 && "$ " + amount * stockInfo[1]} */}
           </Text>
           {/* <TextInput value={total}></TextInput> */}
         </View>
@@ -586,7 +760,7 @@ export default function StockDetail({ route, navigation }) {
                     paddingHorizontal: 10,
                   }}
                 >
-                  Buy
+                  {isKorean ? "매수" : "Buy"}
                 </Text>
               )}
 
@@ -639,7 +813,7 @@ export default function StockDetail({ route, navigation }) {
                     paddingHorizontal: 10,
                   }}
                 >
-                  Sell
+                  {isKorean ? "매도" : "Sell"}
                 </Text>
               )}
 

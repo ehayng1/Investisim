@@ -7,7 +7,7 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, createContext, useContext } from "react";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -25,7 +25,7 @@ import SignUp from "./Screens/SignUp";
 import Profile from "./Screens/Drawer/Profile";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome } from "@expo/vector-icons";
-
+import { LanguageContext } from "./context/languageContext";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const screenWidth = Dimensions.get("window") * 0.3;
@@ -42,6 +42,7 @@ const MyTheme = {
 export function MyTabs({ navigation, route }) {
   // console.log("nav: ", navigation);
   // console.log("route: ", route);
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
   return (
     <Tab.Navigator
       initialRouteName="Feed"
@@ -50,24 +51,26 @@ export function MyTabs({ navigation, route }) {
       }}
     >
       <Tab.Screen
-        name="Home"
+        name={isKorean ? "홈" : "Home"}
         component={Home}
         options={{
           // headerShown: false,
           headerTitleAlign: "center",
-          tabBarLabel: "Home",
+          tabBarLabel: isKorean ? "홈" : "Home",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="home" color={color} size={size} />
           ),
         }}
       />
       <Tab.Screen
+        // name={isKorean ? "주식시장" : "Stock"}
         name="Stock"
         component={StockTab}
         options={{
+          headerTitle: isKorean ? "주식시장" : "Stock",
           headerShadowVisible: false,
           headerShown: false,
-          tabBarLabel: "Stock",
+          tabBarLabel: isKorean ? "주식시장" : "Stock",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
               name="chart-timeline-variant"
@@ -78,11 +81,13 @@ export function MyTabs({ navigation, route }) {
         }}
       />
       <Tab.Screen
+        // name={isKorean ? "내 거리" : "Trade"}
         name="Trade"
         component={TradeTab}
         options={{
+          headerTitlee: isKorean ? "내 거리" : "Trade",
           headerShown: false,
-          tabBarLabel: "Trade",
+          tabBarLabel: isKorean ? "내 거리" : "Trade",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
               name="swap-vertical"
@@ -97,7 +102,8 @@ export function MyTabs({ navigation, route }) {
         name="Leaderboard"
         component={Leaderboard}
         options={{
-          tabBarLabel: "Leaderboard",
+          headerTitle: isKorean ? "랭킹" : "Leaderboard",
+          tabBarLabel: isKorean ? "랭킹" : "Leaderboard",
           headerTitleAlign: "center",
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="leaderboard" size={size} color={color} />
@@ -106,11 +112,11 @@ export function MyTabs({ navigation, route }) {
       />
 
       <Tab.Screen
-        name="Resources"
+        name={isKorean ? "투자 전략" : "Resources"}
         component={Resources}
         options={{
           headerShown: false,
-          tabBarLabel: "Resources",
+          tabBarLabel: isKorean ? "투자 전략" : "Resources",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
               name="paperclip"
@@ -128,22 +134,10 @@ const Drawer = createDrawerNavigator();
 
 function MyDrawer() {
   const [isLoggedIn, setisLoggedIn] = useState(false);
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
+
   useEffect(() => {
     const auth = getAuth();
-    // const loginCheck = async () => {
-    //   onAuthStateChanged(auth, (user) => {
-    //     if (user) {
-    //       // User is signed in, see docs for a list of available properties
-    //       // https://firebase.google.com/docs/reference/js/firebase.User
-    //       setisLoggedIn(true);
-    //       // ...
-    //     } else {
-    //       // User is signed out
-    //       // ...
-    //     }
-    //   });
-    // };
-    // loginCheck();
     const loginCheck = async () => {
       const user = auth.currentUser;
       if (user) {
@@ -178,13 +172,13 @@ function MyDrawer() {
       })}
     >
       <Drawer.Screen
-        name="Home"
+        name={isKorean ? "홈" : "Home"}
         component={MyTabs}
         options={{
           drawerIcon: ({ size }) => (
             <MaterialCommunityIcons name="home" color="#E64A19" size={size} />
           ),
-          drawerLabel: "Home",
+          drawerLabel: isKorean ? "홈" : "Home",
           title: "Funducate",
           headerTitleAlign: "center",
           headerStyle: {
@@ -206,17 +200,17 @@ function MyDrawer() {
         }}
       />
       <Drawer.Screen
-        name="Profile"
+        name={isKorean ? "프로필" : "User Profile"}
         component={Profile}
         options={{
           drawerIcon: ({ size }) => (
             <FontAwesome name="user-circle" size={size} color="#E64A19" />
           ),
-          drawerLabel: "User Profile",
+          drawerLabel: isKorean ? "프로필" : "User Profile",
         }}
       />
       <Drawer.Screen
-        name="About Us"
+        name={isKorean ? "DREAM 클럽" : "About Us"}
         component={About}
         options={{
           drawerIcon: ({ size }) => (
@@ -226,18 +220,20 @@ function MyDrawer() {
               size={size}
             />
           ),
-          drawerLabel: "About Us",
+          drawerLabel: isKorean ? "DREAM 클럽" : "About Us",
         }}
       />
 
       <Drawer.Screen
+        // name={isKorean ? "로그인" : "Login"}
         name="Login"
         component={Login}
         options={{
           //disables swiping from left to prevent user naviagation before login or sign up.
           swipeEdgeWidth: 0,
           // uncomment line below when testing is over to block user from navigating to home before login.
-          headerShown: false,
+          // shows hamburger menu
+          // headerShown: false,
           drawerLabel: "Login / Sign Up",
           drawerIcon: ({ size }) => (
             <MaterialCommunityIcons name="login" color="#E64A19" size={size} />
@@ -262,45 +258,15 @@ function MyDrawer() {
   );
 }
 
-function LogoTitle() {
-  return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-      }}
-    >
-      <Text
-        style={{
-          marginLeft: "35%",
-          marginRight: "30%",
-          fontWeight: 700,
-          fontSize: 18,
-        }}
-      >
-        Funducate
-      </Text>
-      <Image
-        style={{
-          // marginLeft: "40%",
-          // marginRight: "10%",
-          width: 40,
-          height: 40,
-          borderRadius: 15,
-        }}
-        source={require("./data/logo.png")}
-      />
-    </View>
-  );
-}
-
 export default function App() {
+  const [isKorean, setIsKorean] = useState(true);
   return (
     <NavigationContainer theme={MyTheme}>
-      <MyDrawer>
-        <MyTabs />
-      </MyDrawer>
-      {/* <MyTabs></MyTabs> */}
+      <LanguageContext.Provider value={{ isKorean, setIsKorean }}>
+        <MyDrawer>
+          <MyTabs />
+        </MyDrawer>
+      </LanguageContext.Provider>
     </NavigationContainer>
   );
 }

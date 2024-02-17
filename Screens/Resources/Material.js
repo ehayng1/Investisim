@@ -8,14 +8,17 @@ import {
   Linking,
 } from "react-native";
 import { WebView } from "react-native-webview";
+import React, { useContext } from "react";
 
 import { Dimensions } from "react-native";
 import ToolTip from "../../Components/ToolTip";
+import { LanguageContext } from "../../context/languageContext";
 
 const screenWidth = Dimensions.get("window").width;
 const screenHeigth = Dimensions.get("window").height;
 
 export function Week1() {
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
   return (
     <ScrollView>
       <View style={{ marginHorizontal: 0 }}>
@@ -28,7 +31,7 @@ export function Week1() {
             marginBottom: 40,
           }}
         >
-          Day Trading
+          {isKorean ? "일중매매거래" : "Day Trading"}
         </Text>
 
         <WebView
@@ -43,20 +46,6 @@ export function Week1() {
             marginBottom: 30,
           }}
         />
-        {/* <iframe
-          width="1280"
-          height="720"
-          src="https://www.youtube.com/embed/EMc2b3_YV7s"
-          title="Day Trading for Beginners 2023 (The ULTIMATE In-Depth Guide)"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen
-        ></iframe> */}
-
-        {/* <Image
-          style={{ marginLeft: 10, width: 350, height: 250, marginBottom: 30 }}
-          source={require("../../data/week2.png")}
-        ></Image> */}
         <View
           style={{
             marginBottom: 10,
@@ -73,11 +62,19 @@ export function Week1() {
             >
               {/* <View style={{ width: "35%" }}> */}
               <View style={{}}>
-                <Text style={[styles.subtitle]}>Audience</Text>
+                <Text style={[styles.subtitle]}>
+                  {isKorean ? "대상" : "Audience"}
+                </Text>
               </View>
 
               <View style={{ flex: 0 }}>
-                <ToolTip content="Day trading is one of the most basic trading strategies, therefore accessible for beginners without extensive knowledge and experience."></ToolTip>
+                <ToolTip
+                  content={
+                    isKorean
+                      ? "일중매매거래는 가장 기본적인 주식 투자 전략 중 하나이므로 지식과 경험이 풍부하지 않은 초보자분들께도 접근성이 좋습니다."
+                      : "Day trading is one of the most basic trading strategies, therefore accessible for beginners without extensive knowledge and experience."
+                  }
+                ></ToolTip>
               </View>
               <View style={{ flexGrow: 1 }}>
                 <Text
@@ -88,7 +85,7 @@ export function Week1() {
                     textAlign: "right",
                   }}
                 >
-                  Beginners
+                  {isKorean ? "초보자" : "Beginners"}
                 </Text>
               </View>
             </View>
@@ -102,13 +99,23 @@ export function Week1() {
             >
               {/* <View style={{ width: "35%" }}> */}
               <View style={{}}>
-                <Text style={[styles.subtitle]}>Company Size</Text>
+                <Text style={[styles.subtitle]}>
+                  {isKorean ? "기업규모" : "Company Size"}
+                </Text>
               </View>
               <View>
-                <ToolTip content="Middle sized or small firms have more volatility compared to large companies which helps the traders yield greater returns."></ToolTip>
+                <ToolTip
+                  content={
+                    isKorean
+                      ? "중견기업 또는 중소기업의 경우 대기업들에 비해 변동성이 커 거래자가 더 큰 수익을 얻을 수 있도록 합니다."
+                      : "Middle sized or small firms have more volatility compared to large companies which helps the traders yield greater returns."
+                  }
+                ></ToolTip>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.size}>Mid & Small</Text>
+                <Text style={styles.size}>
+                  {isKorean ? "중견기업 또는 중소기업" : "Mid & Small"}{" "}
+                </Text>
               </View>
             </View>
             <View
@@ -118,7 +125,9 @@ export function Week1() {
                 flexDirection: "row",
               }}
             >
-              <Text style={styles.subtitle}>Risk/Profit</Text>
+              <Text style={styles.subtitle}>
+                {isKorean ? "위험도/수익 수준" : "Risk/Profit"}{" "}
+              </Text>
               <Text
                 style={{
                   flex: 1,
@@ -142,7 +151,7 @@ export function Week1() {
               // color: "#808080",
             }}
           >
-            Summary
+            {isKorean ? "요약" : "Summary"}
           </Text>
           <Text
             style={{
@@ -153,10 +162,9 @@ export function Week1() {
               color: "#505050",
             }}
           >
-            Day trading is a strategy where stocks and securities are traded on
-            a daily basis, where investors exploit the daily volatility to earn
-            money. Less risk present in the market as the trading term is pretty
-            short. Has a relatively lower risk compared to other strategies.
+            {isKorean
+              ? "일중매매거래란 주식과 증권이 매일 거래되는 전략으로 하루 중 가격 등락에서 차익을 얻습니다. 거래 기간이 상당히 짧은 편임으로 시장에 존재하는 위험요소는 상대적으로 적은 편이기 때문에 위험부담이 낮은 전략에 속합니다."
+              : "Day trading is a strategy where stocks and securities are traded on a daily basis, where investors exploit the daily volatility to earn money. Less risk present in the market as the trading term is pretty short. Has a relatively lower risk compared to other strategies."}
           </Text>
         </View>
       </View>
@@ -165,17 +173,19 @@ export function Week1() {
 }
 
 export function Week2({ navigation }) {
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
   return (
     <ScrollView>
       <View style={{ marginHorizontal: 0 }}>
-        <Text style={styles.title}>Position Trading</Text>
+        <Text style={styles.title}>
+          {" "}
+          {isKorean ? "포지션 거래" : "Position Trading"}
+        </Text>
 
         <Text style={styles.summary}>
-          Position trading is a strategy where traders analyze the market trend
-          over several weeks to look for continuous volatility. After
-          identifying the “waves”, traders seek to buy on low points and sell on
-          high points. Time consuming for the expense of ensured profit. People
-          who wish to earn money safely at the expense of time.
+          {isKorean
+            ? "포지션 거래란 투자자들이 몇 주에 걸쳐 시장 동향을 분석하여 지속적이고 반복적인 변동성을 찾아 투자하는 전략입니다. ‘파도'를 확인한 후 투자자들은 저점에서 매수하고 고점에서 매도를 하는 것을 목표로 합니다. 확실한 이익을 위해 많은 시간이 소요되는 편이지만 안전하게 돈을 벌고자 하는 투자자들에게 적절합니다."
+            : "Position trading is a strategy where traders analyze the market trend over several weeks to look for continuous volatility. After identifying the “waves”, traders seek to buy on low points and sell on high points. Time consuming for the expense of ensured profit. People who wish to earn money safely at the expense of time."}
         </Text>
 
         <Image
@@ -196,7 +206,9 @@ export function Week2({ navigation }) {
                 flexDirection: "row",
               }}
             >
-              <Text style={[styles.subtitle]}>Audience</Text>
+              <Text style={[styles.subtitle]}>
+                {isKorean ? "대상" : "Audience"}
+              </Text>
               <Text
                 style={{
                   color: "green",
@@ -207,7 +219,7 @@ export function Week2({ navigation }) {
                   textAlign: "right",
                 }}
               >
-                Beginners
+                {isKorean ? "초보자" : "Beginners"}
               </Text>
             </View>
 
@@ -218,8 +230,16 @@ export function Week2({ navigation }) {
                 flexDirection: "row",
               }}
             >
-              <Text style={[styles.subtitle, {}]}>Company Size</Text>
-              <ToolTip content="Position trading is executed over a long period of time, making smaller company stocks susceptible to increased variability and potential bankruptcy due to numerous market variables. "></ToolTip>
+              <Text style={[styles.subtitle, {}]}>
+                {isKorean ? "회사 규모" : "Company Size"}
+              </Text>
+              <ToolTip
+                content={
+                  isKorean
+                    ? "포지션 거래는 장기간에 걸쳐 진행됨에 따라 소규모 회사 주식들은 다양한 시장 변수로 인해 변동성이 커지고 잠재적인 파산의 가능성 또한 높습니다."
+                    : "Position trading is executed over a long period of time, making smaller company stocks susceptible to increased variability and potential bankruptcy due to numerous market variables. "
+                }
+              ></ToolTip>
               <Text
                 style={{
                   flex: 1,
@@ -228,7 +248,7 @@ export function Week2({ navigation }) {
                   fontWeight: "500",
                 }}
               >
-                Big
+                {isKorean ? "대기업" : "Big"}
               </Text>
             </View>
             <View
@@ -238,7 +258,9 @@ export function Week2({ navigation }) {
                 flexDirection: "row",
               }}
             >
-              <Text style={styles.subtitle}>Risk/Profit</Text>
+              <Text style={styles.subtitle}>
+                {isKorean ? "위험도/수익 수준" : "Risk/Profit"}
+              </Text>
               <Text
                 style={{
                   fontSize: 17,
@@ -262,7 +284,7 @@ export function Week2({ navigation }) {
               // color: "#808080",
             }}
           >
-            Summary
+            {isKorean ? "요약" : "Summary"}
           </Text>
           <Text
             style={{

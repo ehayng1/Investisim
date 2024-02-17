@@ -8,8 +8,8 @@ import {
   RefreshControl,
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-import React, { useState, useEffect } from "react";
-// import FetchStock from "../Components/FetchStock";
+import React, { useContext, useEffect } from "react";
+import { LanguageContext } from "../context/languageContext";
 import {
   doc,
   addDoc,
@@ -55,7 +55,7 @@ function Trade({ route, navigation }) {
     },
   });
   const [stocks, setStocks] = React.useState({ APPL: 1 });
-
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
   const [reload, setReload] = React.useState(false);
   const isFocused = useIsFocused();
   let uniqueId;
@@ -105,6 +105,7 @@ function Trade({ route, navigation }) {
     const docSnap = await getDoc(docRef);
     docData = docSnap.data();
     console.log("Data: ", docData);
+
     if (docSnap.exists()) {
       // await setDoc(doc(db, "logs", uniqueId), data);
       // setData({ ...docData });
@@ -234,14 +235,20 @@ function Trade({ route, navigation }) {
             marginTop: "5%",
           }}
         >
-          Purchased Stocks
+          {isKorean ? "보유한 주식" : "Purchased Stocks"}
         </Text>
 
         <View style={{ flexDirection: "row" }}>
-          <Text style={{ color: "#808080", flex: 0.3 }}>Asset</Text>
-          <Text style={{ color: "#808080", flex: 0.3 }}>Price</Text>
-          <Text style={{ color: "#808080", flex: 0.3 }}>Amount</Text>
-          <Text style={{ color: "#808080" }}>Date</Text>
+          <Text style={{ color: "#808080", flex: 0.3 }}>
+            {isKorean ? "종목" : "Asset"}
+          </Text>
+          <Text style={{ color: "#808080", flex: 0.3 }}>
+            {isKorean ? "가격" : "Price"}
+          </Text>
+          <Text style={{ color: "#808080", flex: 0.3 }}>
+            {isKorean ? "개수" : "Amount"}
+          </Text>
+          <Text style={{ color: "#808080" }}>{isKorean ? "날짜" : "Date"}</Text>
         </View>
 
         <View
@@ -277,12 +284,12 @@ function Trade({ route, navigation }) {
                     key={index}
                   >
                     <Text
-                      style={{ flex: 0.3, fontWeight: "bold", fontSize: 18 }}
+                      style={{ width: "25%", fontWeight: "bold", fontSize: 18 }}
                     >
                       {data[el].symbol}
                     </Text>
                     <Text
-                      style={{ flex: 0.3, fontWeight: "bold", fontSize: 16 }}
+                      style={{ width: "30%", fontWeight: "bold", fontSize: 16 }}
                     >
                       {" "}
                       $ {data[el].price}
@@ -290,17 +297,18 @@ function Trade({ route, navigation }) {
                     <View
                       style={{
                         flexDirection: "row",
-                        flex: 0.35,
+                        // flex: 1,
+                        width: "30%",
                         alignItems: "center",
                       }}
                     >
                       <Text style={{ fontSize: 16 }}>
-                        {" "}
                         {" " + data[el].amount}
                       </Text>
                       <Text style={{ color: "#808080", fontSize: 14 }}>
                         {"  "}
-                        shares
+
+                        {isKorean ? "주" : "shares"}
                       </Text>
                     </View>
                     <View
@@ -311,7 +319,10 @@ function Trade({ route, navigation }) {
                       }}
                     >
                       <Text style={{ fontSize: 14 }}>
-                        {Date(el).toLocaleString("en-US").slice(4, 10)}
+                        {/* {new Date(el).toLocaleString("en-US").slice(4, 10)} */}
+                        {new Date(Number(el)).getMonth() + 1}
+                        {"/"}
+                        {new Date(Number(el)).getDate()}
                       </Text>
                       {/* <Text style={{ color: "#808080", fontSize: 12 }}></Text> */}
                     </View>
@@ -338,7 +349,9 @@ function Trade({ route, navigation }) {
             marginBottom: "10%",
           }}
         >
-          Click each asset to sell it!
+          {isKorean
+            ? "매도하길 원하면 각 종목을 클릭하세요!"
+            : "Click each asset to sell it!"}
         </Text>
       </View>
     </ScrollView>
@@ -347,15 +360,16 @@ function Trade({ route, navigation }) {
 
 const Stack = createNativeStackNavigator();
 export default function TradeTab() {
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Trade"
+        name={isKorean ? "내 거래" : "Trade"}
         component={Trade}
         options={{ headerTitleAlign: "center" }}
       />
       <Stack.Screen
-        name="StockDetail"
+        name={isKorean ? "자세히 보기" : "Stock Detail"}
         component={StockDetail}
         options={{ title: "Stock Detail" }}
       />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -25,6 +25,8 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LanguageContext } from "../context/languageContext";
+
 const auth = getAuth();
 
 export default function SignUp(props) {
@@ -38,17 +40,29 @@ export default function SignUp(props) {
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
   // if user presses the back button, asks for exit
   useEffect(() => {
     const backAction = () => {
-      Alert.alert("Hold on!", "Are you sure you want to leave?", [
-        {
-          text: "Cancel",
-          onPress: () => null,
-          style: "cancel",
-        },
-        { text: "YES", onPress: () => BackHandler.exitApp() },
-      ]);
+      {
+        isKorean
+          ? Alert.alert("잠깐!", "앱을 종료하길 원하십니까?", [
+              {
+                text: "아니요",
+                onPress: () => null,
+                style: "cancel",
+              },
+              { text: "예", onPress: () => BackHandler.exitApp() },
+            ])
+          : Alert.alert("Hold on!", "Are you sure you want to leave?", [
+              {
+                text: "Cancel",
+                onPress: () => null,
+                style: "cancel",
+              },
+              { text: "YES", onPress: () => BackHandler.exitApp() },
+            ]);
+      }
       return true;
     };
 
@@ -73,36 +87,39 @@ export default function SignUp(props) {
 
   const register = () => {
     if (email == "") {
-      setEmailError("Please enter an email.");
-      alert(emailError);
-      return;
+      {
+        isKorean
+          ? alert("이메일을 입력해 주세요.")
+          : alert("Please enter an email.");
+        return;
+      }
     } else if (name == "") {
-      setNameError("Please enter your name.");
-      alert(nameError);
+      isKorean
+        ? alert("이름을 입력해 주세요.")
+        : alert("Please enter your name.");
       return;
     } else if (password == "") {
-      setPasswordError("Please enter a password.");
-      alert(passwordError);
+      isKorean
+        ? alert("비밀번호를 입력해 주세요.")
+        : alert("Please enter your password.");
       return;
     } else if (confirmPassword == "") {
-      setConfirmPasswordError("Please confirm your password.");
-      alert(confirmPasswordError);
+      isKorean
+        ? alert("비밀번호 확인을 입력해 주세요.")
+        : setConfirmPasswordError("Please confirm your password.");
       return;
     } else if (password != confirmPassword) {
-      setConfirmPasswordError("Password does not match.");
-      alert(confirmPasswordError);
+      isKorean
+        ? alert("두 비밀번호가 다릅니다.")
+        : setConfirmPasswordError("Passwords does not match.");
       return;
     }
 
     setLoading(true);
     createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
-        // const setId = async (id) => {
-        // };
         console.log("The user account is created.");
         const id = await getUserId();
-        // setId(id);
-        // const uniqueId = await AsyncStorage.getItem("uniqueId");
         const uniqueId = id;
         console.log("ID: ", uniqueId);
         await setDoc(doc(db, "users", uniqueId), {
@@ -130,29 +147,19 @@ export default function SignUp(props) {
         const errorCode = error.code;
         const errorMessage = error.message;
         if (errorCode == "auth/email-already-in-use") {
-          // Toast.show({
-          //   type: "error",
-          //   text1: "Email is already used.",
-          // });
-          alert("Email is already used.");
+          {
+            isKorean
+              ? alert("이메일이 이미 존재합니다.")
+              : alert("Email is already being used.");
+          }
         } else if (errorCode == "auth/invalid-email") {
-          // Toast.show({
-          //   type: "error",
-          //   text1: "Email format is not correct.",
-          // });
-          alert("Email format is not correct.");
-        } else if (errorCode == "auth/invalid-email") {
-          // Toast.show({
-          //   type: "error",
-          //   text1: "Email format is not correct.",
-          // });
-          alert("Email format is not correct.");
+          isKorean
+            ? alert("이메일 형식이 올바르지 않습니다.")
+            : alert("Email format is not correct.");
         } else if (errorCode == "auth/weak-password") {
-          // Toast.show({
-          //   type: "error",
-          //   text1: "Password is too weak.",
-          // });
-          alert("Password is too weak.");
+          isKorean
+            ? alert("더 복잡한 비밀번호를 입력해주세요.")
+            : alert("Password is too weak.");
         }
         setLoading(false);
       });
@@ -170,7 +177,7 @@ export default function SignUp(props) {
           marginTop: "20%",
         }}
       >
-        Sign Up
+        {isKorean ? "회원가입" : "Sign Up"}
       </Text>
       <TextInput
         style={{
@@ -182,7 +189,7 @@ export default function SignUp(props) {
           marginHorizontal: 20,
         }}
         autoCapitalize={"none"}
-        placeholder="Email"
+        placeholder={isKorean ? "이메일 주소" : "Email"}
         onChangeText={setEmail}
         onChange={() => {
           setEmailError("");
@@ -198,7 +205,7 @@ export default function SignUp(props) {
           marginHorizontal: 20,
         }}
         autoCapitalize={"none"}
-        placeholder="Name"
+        placeholder={isKorean ? "이름" : "Name"}
         onChangeText={setName}
         onChange={() => {
           setNameError("");
@@ -218,7 +225,7 @@ export default function SignUp(props) {
           setPasswordError("");
         }}
         secureTextEntry={true}
-        placeholder="Password"
+        placeholder={isKorean ? "비밀번호" : "Password"}
         onChangeText={setPassword}
       ></TextInput>
       <TextInput
@@ -235,7 +242,7 @@ export default function SignUp(props) {
           setConfirmPasswordError("");
         }}
         secureTextEntry={true}
-        placeholder="Confirm Password"
+        placeholder={isKorean ? "비밀번호 확인" : "Confirm Password"}
         onChangeText={setConfirmPassword}
       ></TextInput>
       <TouchableOpacity
@@ -262,7 +269,7 @@ export default function SignUp(props) {
               color: "white",
             }}
           >
-            Sign Up
+            {isKorean ? "완료" : "Sign Up"}
           </Text>
         )}
       </TouchableOpacity>
@@ -272,7 +279,8 @@ export default function SignUp(props) {
           marginTop: "3%",
         }}
       >
-        Already have an account?
+        {isKorean ? "이미 계정이 있으신가요?" : "Already have an account?"}
+
         <Text
           style={{ fontWeight: "bold" }}
           onPress={() => {
@@ -280,7 +288,7 @@ export default function SignUp(props) {
           }}
         >
           {" "}
-          Login
+          {isKorean ? "로그인하세요" : "Login"}
         </Text>
       </Text>
       {/* </KeyboardAwareScrollView> */}

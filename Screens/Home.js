@@ -23,9 +23,10 @@ import {
   getDoc,
   updateDoc,
 } from "firebase/firestore";
-import React, { useState, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { getAuth } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LanguageContext } from "../context/languageContext";
 
 const screenWidth = Dimensions.get("window").width * 0.95;
 const color = "E64A19";
@@ -41,7 +42,7 @@ export default function Home({ route, navigation }) {
   const [historyData, setHistoryData] = React.useState([]);
   let uniqueId;
   const [refreshing, setRefreshing] = React.useState(false);
-
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     await getUserData();
@@ -142,11 +143,11 @@ export default function Home({ route, navigation }) {
             color: "#D84315",
           }}
         >
-          Hello, {userData.name}
+          {isKorean ? "반가워요, " : "Hello, "} {userData.name}
         </Text>
         <View style={{ marginTop: 10 }}>
           <Text style={{ color: "#808080", fontSize: 14 }}>
-            Current Balance
+            {isKorean ? "예수금" : "Current Balance"}
           </Text>
           <Text
             style={{
@@ -163,7 +164,7 @@ export default function Home({ route, navigation }) {
         </View>
         <View style={{ alignItems: "center", marginTop: 20 }}>
           <Text style={{ fontSize: 18, fontWeight: "400", color: "#808080" }}>
-            Overall Performance
+            {isKorean ? "평가 손익" : "Overall Performance"}
           </Text>
           <Text
             style={{
@@ -207,14 +208,16 @@ export default function Home({ route, navigation }) {
                 // marginBottom: 0,
               }}
             >
-              Start your first Trade!
+              {isKorean
+                ? "첫 거래를 시작해 보세요!"
+                : "Start your first Trade!"}
             </Text>
           )}
         </View>
         {userData.firstTrade && (
           <View style={{ marginBottom: 15, marginTop: 20 }}>
             <Text style={{ fontSize: 20, fontWeight: "600" }}>
-              Recent Transactions
+              {isKorean ? "최근 거래 내역" : "Recent Transactions"}
             </Text>
           </View>
         )}

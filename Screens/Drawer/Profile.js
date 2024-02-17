@@ -10,7 +10,7 @@ import {
   Linking,
   Alert,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { db } from "../../firebaseConfig";
 import {
   collection,
@@ -33,6 +33,8 @@ import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LanguageContext } from "../../context/languageContext";
+import DropdownComponent from "../../Components/Dropdown";
 
 export default function Profile({ route, navigation }) {
   const [userData, setUserData] = React.useState({
@@ -44,6 +46,7 @@ export default function Profile({ route, navigation }) {
   });
   const auth = getAuth();
   const user = auth.currentUser;
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
 
   function removeTimerData() {
     const init = async () => {
@@ -87,28 +90,33 @@ export default function Profile({ route, navigation }) {
 
   const deleteUserAccount = async () => {
     console.log(user);
-    Alert.alert("Hold on!", "Are you sure you want to delete your account?", [
-      {
-        text: "Cancel",
-        onPress: () => null,
-        style: "cancel",
-      },
-      {
-        text: "YES",
-        onPress: () =>
-          deleteUser(user)
-            .then(() => {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "Login" }],
-              });
-              console.log("Successfully deleted user");
-            })
-            .catch((error) => {
-              console.log("Error deleting user:", error);
-            }),
-      },
-    ]);
+    Alert.alert(
+      isKorean
+        ? "잠깐! 계정 삭제를 원하는 것이 확실한가요? (취소/예)"
+        : "Hold on!, Are you sure you want to delete your account?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => null,
+          style: "cancel",
+        },
+        {
+          text: "YES",
+          onPress: () =>
+            deleteUser(user)
+              .then(() => {
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: "Login" }],
+                });
+                console.log("Successfully deleted user");
+              })
+              .catch((error) => {
+                console.log("Error deleting user:", error);
+              }),
+        },
+      ]
+    );
   };
 
   const getUserData = async () => {
@@ -155,11 +163,12 @@ export default function Profile({ route, navigation }) {
     };
     init();
   }, []);
+
   return (
     <ScrollView>
       <View style={{ marginLeft: 20 }}></View>
       <View style={{ marginHorizontal: 20 }}>
-        <Button title="Initialize ALL user data" onPress={initialize}></Button>
+        {/* <Button title="Initialize ALL user data" onPress={initialize}></Button> */}
         <View
           style={{
             flexDirection: "row",
@@ -223,7 +232,7 @@ export default function Profile({ route, navigation }) {
               flex: 1,
             }}
           >
-            Privacy Policy
+            {isKorean ? "보안정책" : "Privacy Policy"}
           </Text>
           <MaterialIcons
             onPress={() =>
@@ -255,7 +264,7 @@ export default function Profile({ route, navigation }) {
               flex: 1,
             }}
           >
-            Sign Out
+            {isKorean ? "로그아웃" : "Sign Out"}
           </Text>
           <MaterialIcons
             onPress={signOut}
@@ -283,7 +292,7 @@ export default function Profile({ route, navigation }) {
               flex: 1,
             }}
           >
-            Delete Account
+            {isKorean ? "계정삭제" : "Delete Account"}
           </Text>
           <MaterialIcons
             onPress={deleteUserAccount}
@@ -291,6 +300,9 @@ export default function Profile({ route, navigation }) {
             size={24}
             color="black"
           />
+        </View>
+        <View>
+          <DropdownComponent></DropdownComponent>
         </View>
       </View>
     </ScrollView>

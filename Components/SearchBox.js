@@ -1,10 +1,11 @@
 import { TextInput, StyleSheet, Text, View, Pressable } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 // import { data } from "../data/data";
 import { data } from "../data/data";
 import SearchCard from "./SearchCard";
 import PaintStock from "./PaintStock";
 import { MaterialIcons } from "@expo/vector-icons";
+import { LanguageContext } from "../context/languageContext";
 
 // const finnhub = require("finnhub");
 // const api_key = finnhub.ApiClient.instance.authentications["api_key"];
@@ -13,6 +14,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 export default function searchStock(navigation) {
   const [filteredStringArray, setFilteredStringArray] = useState([]);
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
   const updateArray = (text) => {
     let count = 0;
     // console.log(text);
@@ -66,7 +68,9 @@ export default function searchStock(navigation) {
             padding: 10,
             width: "90%",
           }}
-          placeholder={"Search symbol/name"}
+          placeholder={
+            isKorean ? "주식이나 회사명을 검색해보세요" : "Search symbol/name"
+          }
           onChangeText={(text) => {
             updateArray(text);
           }}

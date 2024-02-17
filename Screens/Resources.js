@@ -8,8 +8,9 @@ import {
   Pressable,
 } from "react-native";
 import fetchNewsInfo from "../Components/fetchNewsInfo";
-import React, { useState, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import CountDown from "react-native-countdown-component";
+
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {
   Week1,
@@ -30,12 +31,14 @@ import {
   Week16,
 } from "./Resources/Material";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LanguageContext } from "../context/languageContext";
 
 function Resource({ navigation }) {
   const [stage, setStage] = React.useState();
   const [id, setId] = React.useState("12");
   // const [until, setUntil] = React.useState(0);
   const [timeLeft, setTimeLeft] = React.useState(0);
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
 
   const [material, setMaterial] = React.useState([
     { title: "Week 1", isActivated: true, strategy: "1. Day Trading" },
@@ -194,7 +197,7 @@ function Resource({ navigation }) {
             fontWeight: "600",
           }}
         >
-          Until Next Material...
+          {isKorean ? "다음 자료까지 남은 시간은..." : "Until Next Material..."}
         </Text>
         <View style={{ marginTop: 40 }}>
           <CountDown
@@ -202,7 +205,11 @@ function Resource({ navigation }) {
             until={timeLeft}
             onFinish={handleFinish}
             size={30}
-            timeLabels={{ d: "Day", h: "Hour", m: "Min", s: "Sec" }}
+            timeLabels={
+              isKorean
+                ? { d: "일", h: "시간", m: "분", s: "초" }
+                : { d: "Day", h: "Hour", m: "Min", s: "Sec" }
+            }
             timeLabelStyle={{ color: "black", fontWeight: "500", fontSize: 14 }}
           />
         </View>
@@ -244,10 +251,11 @@ function Resource({ navigation }) {
 
 const Stack = createNativeStackNavigator();
 export default function Resources() {
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Resource"
+        name={isKorean ? "투자 전략" : "Resource"}
         component={Resource}
         options={{ headerTitleAlign: "center" }}
       />

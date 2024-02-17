@@ -8,7 +8,7 @@ import {
   Pressable,
   ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useContext } from "react";
 
 import StockCard from "../Components/StockCard";
 import StockHeader from "../Components/StockHeader";
@@ -16,11 +16,14 @@ import SearchStock from "../Components/SearchBox";
 import StockDetail from "../Components/StockDetail";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import options from "../config";
+import { LanguageContext } from "../context/languageContext";
 
 function Stock({ navigation }) {
   const [stockData, setStockData] = React.useState([]);
   const [symbolList, setSymbolList] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
+
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
 
   const getStockInfo = async (symbol) => {
     let symbolStr = "";
@@ -52,6 +55,7 @@ function Stock({ navigation }) {
       })
       .catch((err) => console.error("ERROR: ", err));
   };
+
   const getTrend = async () => {
     setIsLoading(true);
     let tempArr = [];
@@ -98,7 +102,7 @@ function Stock({ navigation }) {
         <View style={{ marginTop: "60%" }}>
           <ActivityIndicator size="large" color="#D84315" />
           <Text style={{ textAlign: "center", fontSize: 16, marginTop: 10 }}>
-            Reading data from server...
+            {isKorean ? "데이터 로딩중..." : "Reading data from server..."}
           </Text>
         </View>
       ) : (
@@ -108,7 +112,7 @@ function Stock({ navigation }) {
           <View style={{ marginHorizontal: "5%" }}>
             <View style={{ marginBottom: "5%", marginTop: "10%" }}>
               <Text style={{ fontSize: 21, fontWeight: "bold" }}>
-                Most popular stocks
+                {isKorean ? "인기 종목 순위" : "Most popular stocks"}
               </Text>
             </View>
             <StockHeader></StockHeader>
@@ -124,7 +128,7 @@ function Stock({ navigation }) {
             ))}
             <View style={{ marginBottom: "5%", marginTop: "5%" }}>
               <Text style={{ fontSize: 21, fontWeight: "bold" }}>
-                Top gainers today
+                {isKorean ? "수익 순위" : "Top gainers today"}
               </Text>
             </View>
             <StockHeader></StockHeader>
@@ -146,7 +150,7 @@ function Stock({ navigation }) {
               )}
             <View style={{ marginBottom: "5%", marginTop: "10%" }}>
               <Text style={{ fontSize: 21, fontWeight: "bold" }}>
-                Top losers today
+                {isKorean ? "손실 순위" : "Top losers today"}
               </Text>
             </View>
             <StockHeader></StockHeader>
@@ -173,17 +177,21 @@ function Stock({ navigation }) {
 }
 const Stack = createNativeStackNavigator();
 export default function StockTab() {
+  const { isKorean, setIsKorean } = useContext(LanguageContext);
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Stock"
+        name={isKorean ? "주식시장" : "Stock"}
         component={Stock}
         options={{ headerTitleAlign: "center" }}
       />
       <Stack.Screen
         name="StockDetail"
         component={StockDetail}
-        options={{ title: "Stock Detail", headerTitleAlign: "center" }}
+        options={{
+          title: isKorean ? "자세히 보기" : "Stock Detail",
+          headerTitleAlign: "center",
+        }}
       />
     </Stack.Navigator>
   );

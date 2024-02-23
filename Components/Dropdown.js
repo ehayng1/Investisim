@@ -1,19 +1,20 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { LanguageContext } from "../context/languageContext";
-
+import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { db } from "../firebaseConfig";
+import { getAuth } from "firebase/auth";
 const data = [
   { label: "English", value: "English" },
   { label: "Korean", value: "Korean" },
 ];
 
 const DropdownComponent = () => {
-  const [value, setValue] = useState("English");
-  const [isFocus, setIsFocus] = useState(false);
-
   const { isKorean, setIsKorean } = useContext(LanguageContext);
+  const [value, setValue] = useState(isKorean ? "Korean" : "English");
+  const [isFocus, setIsFocus] = useState(false);
 
   const renderLabel = () => {
     if (value || isFocus) {
@@ -25,6 +26,43 @@ const DropdownComponent = () => {
     }
     return null;
   };
+
+  async function updateLanguage(value) {
+    const washingtonRef = doc(db, "users", uniqueId);
+
+    await updateDoc(washingtonRef, {
+      language: value,
+    });
+  }
+
+  useEffect(() => {
+    const init = async () => {
+      await getId();
+      await getLang();
+    };
+    init();
+  }, []);
+
+  const getId = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+      uniqueId = user.uid;
+    }
+  };
+
+  async function getLang() {
+    const docRef = doc(db, "users", uniqueId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log("Lang: ", docSnap.data().language);
+      setIsKorean(docSnap.data().language == "Korean");
+    } else {
+      // docSnap.data() will be undefined in this case
+      console.log("No such document!");
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -49,6 +87,7 @@ const DropdownComponent = () => {
           setValue(item.value);
           setIsKorean(item.value == "Korean");
           // setdoc on firebase here
+          updateLanguage(item.value);
           setIsFocus(false);
         }}
         renderLeftIcon={() => (

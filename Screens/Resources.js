@@ -41,25 +41,85 @@ function Resource({ navigation }) {
   const { isKorean, setIsKorean } = useContext(LanguageContext);
 
   const [material, setMaterial] = React.useState([
-    { title: "Week 1", isActivated: true, strategy: "1. Day Trading" },
-    { title: "Week 2", isActivated: false, strategy: "2. Position Trading" },
-    { title: "Week 3", isActivated: false, strategy: "3. Swing Trading" },
-    { title: "Week 4", isActivated: false, strategy: "4. Scalping" },
-    { title: "Week 5", isActivated: false, strategy: "5. News Trading" },
-    { title: "Week 6", isActivated: false, strategy: "6. End of Day Trading" },
-    { title: "Week 7", isActivated: false, strategy: "7. Breakout Trading" },
-    { title: "Week 8", isActivated: false, strategy: "8. Pullback Trading" },
+    {
+      title: "Week 1",
+      isActivated: true,
+      strategy: isKorean ? "1. 일중매매거래" : "1. Day Trading",
+    },
+
+    {
+      title: "Week 2",
+      isActivated: false,
+      strategy: isKorean ? "2. 포지션 거래" : "2. Position Trading",
+    },
+    {
+      title: "Week 3",
+      isActivated: false,
+      strategy: isKorean ? "3. 스윙 거래" : "3. Swing Trading",
+    },
+    {
+      title: "Week 4",
+      isActivated: false,
+      strategy: isKorean ? "4. 스컬핑" : "4. Scalping",
+    },
+    {
+      title: "Week 5",
+      isActivated: false,
+      strategy: isKorean ? "5.  거래" : "5. News Trading",
+    },
+    {
+      title: "Week 6",
+      isActivated: false,
+      strategy: isKorean ? "6. 시간 외 거래" : "6. End of Day Trading",
+    },
+    {
+      title: "Week 7",
+      isActivated: false,
+      strategy: isKorean ? "7. 돌파 트레이딩" : "7. Breakout Trading",
+    },
+    {
+      title: "Week 8",
+      isActivated: false,
+      strategy: isKorean ? "8. 평균회귀 전략" : "8. Pullback Trading",
+    },
     {
       title: "Week 9",
       isActivated: false,
-      strategy: "9. Moving average Trading",
+
+      strategy: isKorean
+        ? "9. 이동평균을 이용하는 투자전략"
+        : "9. Moving average Trading",
     },
-    { title: "Week 10", isActivated: false, strategy: "10. Momentum Trading" },
-    { title: "Week 11", isActivated: false, strategy: "11. IPOs" },
-    { title: "Week 12", isActivated: false, strategy: "12. Short Selling" },
-    { title: "Week 13", isActivated: false, strategy: "13. Margin Trading" },
-    { title: "Week 14", isActivated: false, strategy: "14. Funds Trading" },
-    { title: "Week 15", isActivated: false, strategy: "15. Seasonal Trading" },
+    {
+      title: "Week 10",
+      isActivated: false,
+      strategy: isKorean ? "10. 모멘텀 트레이딩" : "10. Momentum Trading",
+    },
+    {
+      title: "Week 11",
+      isActivated: false,
+      strategy: isKorean ? "11. IPO (기업공개)" : "11. IPOs",
+    },
+    {
+      title: "Week 12",
+      isActivated: false,
+      strategy: isKorean ? "12. 공매도" : "12. Short Selling",
+    },
+    {
+      title: "Week 13",
+      isActivated: false,
+      strategy: isKorean ? "13. 마진 거래" : "13. Margin Trading",
+    },
+    {
+      title: "Week 14",
+      isActivated: false,
+      strategy: isKorean ? "14. 펀드 트레이딩" : "14. Funds Trading",
+    },
+    {
+      title: "Week 15",
+      isActivated: false,
+      strategy: isKorean ? "15. 계절적 거래" : "15. Seasonal Trading",
+    },
   ]);
 
   curStage = [];

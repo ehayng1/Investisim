@@ -77,6 +77,18 @@ export default function Home({ route, navigation }) {
     }
     console.log("Unique ID:", uniqueId);
   };
+  async function getLang() {
+    const docRef = doc(db, "users", uniqueId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log("Lang: ", docSnap.data().language);
+      setIsKorean(docSnap.data().language == "Korean");
+    } else {
+      // docSnap.data() will be undefined in this case
+      console.log("No such document!");
+    }
+  }
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
@@ -88,6 +100,7 @@ export default function Home({ route, navigation }) {
   useEffect(() => {
     const init = async () => {
       await getId();
+      await getLang();
       await getUserData();
     };
     init();

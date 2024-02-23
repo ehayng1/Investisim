@@ -233,7 +233,7 @@ function MyDrawer() {
           swipeEdgeWidth: 0,
           // uncomment line below when testing is over to block user from navigating to home before login.
           // shows hamburger menu
-          // headerShown: false,
+          headerShown: false,
           drawerLabel: "Login / Sign Up",
           drawerIcon: ({ size }) => (
             <MaterialCommunityIcons name="login" color="#E64A19" size={size} />
@@ -259,7 +259,7 @@ function MyDrawer() {
 }
 
 export default function App() {
-  const [isKorean, setIsKorean] = useState(true);
+  const [isKorean, setIsKorean] = useState(false);
   return (
     <NavigationContainer theme={MyTheme}>
       <LanguageContext.Provider value={{ isKorean, setIsKorean }}>

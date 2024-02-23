@@ -1,0 +1,21 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project /Users/user2/Downloads/Funducate/ios/Funducate.xcodeproj -configuration Release -scheme Funducate -destination id=F60558B2-6249-480C-9510-88C20423C799
+
+User defaults from command line:
+    IDEPackageSupportUseBuiltinSCM = YES
+
+Prepare packages
+
+Computing target dependency graph and provisioning inputs
+
+Create build description
+Build description signature: aa823287319006c8d126aa5492fabdb9
+Build description path: /Users/user2/Library/Developer/Xcode/DerivedData/Funducate-cavsipsylwilhmfdeujbadohmerd/Build/Intermediates.noindex/XCBuildData/aa823287319006c8d126aa5492fabdb9-desc.xcbuild
+
+note: Building targets in dependency order
+/Users/user2/Downloads/Funducate/ios/Pods/Target Support Files/Pods-Funducate/Pods-Funducate.release.xcconfig:1:1: error: unable to open configuration settings file
+/Users/user2/Downloads/Funducate/ios/Pods/Target Support Files/Pods-Funducate/Pods-Funducate.release.xcconfig:1:1: error: unable to open configuration settings file
+/Users/user2/Downloads/Funducate/ios/Pods/Target Support Files/Pods-Funducate/Pods-Funducate.release.xcconfig:1:1: error: unable to open configuration settings file
+/Users/user2/Downloads/Funducate/ios/Pods/Target Support Files/Pods-Funducate/Pods-Funducate.release.xcconfig:1:1: error: unable to open configuration settings file
+warning: Run script build phase 'Bundle React Native code and images' will be run during every build because it does not specify any outputs. To address this warning, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'Funducate' from project 'Funducate')
+warning: Run script build phase 'Start Packager' will be run during every build because it does not specify any outputs. To address this warning, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'Funducate' from project 'Funducate')

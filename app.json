@@ -3,7 +3,7 @@
     "name": "Funducate",
     "icon": "./data/logo.png",
     "slug": "Funducate",
-    "version": "1.0.22",
+    "version": "1.0.24",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "splash": {
@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ehayng1.Funducate",
-      "buildNumber": "26"
+      "buildNumber": "28"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +23,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.ehayng1.Funducate",
-      "versionCode": 26
+      "versionCode": 28
     },
     "web": {
       "favicon": "./assets/favicon.png"

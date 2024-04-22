@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Funducate",
+    "name": "Investisim",
     "icon": "./data/logo.png",
-    "slug": "Funducate",
+    "slug": "Investisim",
     "version": "1.0.24",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -14,16 +14,16 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ehayng1.Funducate",
-      "buildNumber": "28"
+      "bundleIdentifier": "com.ehayng1.Investisim",
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./data/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.ehayng1.Funducate",
-      "versionCode": 28
+      "package": "com.ehayng1.Investisim",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"

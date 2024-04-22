@@ -179,7 +179,7 @@ function MyDrawer() {
             <MaterialCommunityIcons name="home" color="#E64A19" size={size} />
           ),
           drawerLabel: isKorean ? "홈" : "Home",
-          title: "Funducate",
+          title: "Invesitism",
           headerTitleAlign: "center",
           headerStyle: {
             // removes the border bottom line of DREAM

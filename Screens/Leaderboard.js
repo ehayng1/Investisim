@@ -207,7 +207,7 @@ export default function Leaderboard({ route, navigation }) {
     >
       {isLoading ? (
         <View style={{ marginTop: "60%" }}>
-          <ActivityIndicator size="large" color="#D84315" />
+          <ActivityIndicator size="large" color="#151B8D" />
           <Text style={{ textAlign: "center", fontSize: 16, marginTop: 10 }}>
             {isKorean ? "데이터 로딩중..." : "Reading data from server..."}
           </Text>

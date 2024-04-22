@@ -562,7 +562,9 @@ export default function StockDetail({ route, navigation }) {
     <ScrollView>
       <View style={{ marginHorizontal: 10, marginTop: 20 }}>
         <View style={{}}>
-          <Text style={{ fontSize: 18, fontWeight: 700 }}>{company}</Text>
+          <Text style={{ fontSize: 18, fontWeight: 700, color: "#151B8D" }}>
+            {company}
+          </Text>
           <Text style={{ fontSize: 12, color: "#808080" }}>
             {stock.shortName}
           </Text>
@@ -738,7 +740,8 @@ export default function StockDetail({ route, navigation }) {
               disabled={isBuying}
               style={{
                 flex: 0.5,
-                backgroundColor: "#7BC17E",
+                // backgroundColor: "#7BC17E",
+                backgroundColor: "#151B8D",
                 borderRadius: 10,
                 marginRight: "2%",
                 paddingTop: hp("0.5%"),
@@ -776,6 +779,37 @@ export default function StockDetail({ route, navigation }) {
                 Buy
               </Text> */}
             </Pressable>
+            <Pressable
+              // onPress={handleBuy}
+              disabled={isBuying}
+              style={{
+                flex: 0.5,
+                backgroundColor: "#657383",
+                borderRadius: 10,
+                marginRight: "2%",
+                paddingTop: hp("0.5%"),
+                paddingBottom: hp("0.5%"),
+              }}
+            >
+              {isBuying ? (
+                <ActivityIndicator
+                  style={{ padding: hp("0.5%") }}
+                  color={"white"}
+                />
+              ) : (
+                <Text
+                  style={{
+                    color: "white",
+                    fontWeight: "600",
+                    textAlign: "center",
+                    padding: hp("0.5%"),
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  {isKorean ? "핀" : "Pin"}
+                </Text>
+              )}
+            </Pressable>
           </View>
         ) : (
           <View
@@ -791,7 +825,9 @@ export default function StockDetail({ route, navigation }) {
               disabled={isSelling}
               style={{
                 flex: 0.5,
-                backgroundColor: "#be2e33",
+                // backgroundColor: "#be2e33",
+                backgroundColor: "#151B8D",
+
                 borderRadius: 10,
                 marginRight: "2%",
                 paddingTop: hp("0.5%"),
@@ -816,18 +852,37 @@ export default function StockDetail({ route, navigation }) {
                   {isKorean ? "매도" : "Sell"}
                 </Text>
               )}
-
-              {/* <Text
-                style={{
-                  color: "white",
-                  fontWeight: "600",
-                  textAlign: "center",
-                  padding: 5,
-                  paddingHorizontal: 10,
-                }}
-              >
-                Sell
-              </Text> */}
+            </Pressable>
+            <Pressable
+              // onPress={handleBuy}
+              disabled={isBuying}
+              style={{
+                flex: 0.5,
+                backgroundColor: "#657383",
+                borderRadius: 10,
+                marginRight: "2%",
+                paddingTop: hp("0.5%"),
+                paddingBottom: hp("0.5%"),
+              }}
+            >
+              {isBuying ? (
+                <ActivityIndicator
+                  style={{ padding: hp("0.5%") }}
+                  color={"white"}
+                />
+              ) : (
+                <Text
+                  style={{
+                    color: "white",
+                    fontWeight: "600",
+                    textAlign: "center",
+                    padding: hp("0.5%"),
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  {isKorean ? "핀" : "Pin"}
+                </Text>
+              )}
             </Pressable>
           </View>
         )}
@@ -838,9 +893,9 @@ export default function StockDetail({ route, navigation }) {
 
 const styles = StyleSheet.create({
   selected: {
-    borderWidth: 1,
+    borderWidth: 2,
     borderRadius: 15,
-    borderColor: "#808080",
+    borderColor: "#151B8D",
     paddingLeft: 5,
     paddingRight: 5,
   },
@@ -848,6 +903,7 @@ const styles = StyleSheet.create({
     color: "#808080",
   },
   textselected: {
-    color: "black",
+    fontWeight: "600",
+    color: "#151B8D",
   },
 });

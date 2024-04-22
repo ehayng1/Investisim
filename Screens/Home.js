@@ -153,7 +153,7 @@ export default function Home({ route, navigation }) {
             fontWeight: "600",
             marginBottom: 15,
             marginLeft: 0,
-            color: "#D84315",
+            color: "#151B8D",
           }}
         >
           {isKorean ? "반가워요, " : "Hello, "} {userData.name}
@@ -169,7 +169,7 @@ export default function Home({ route, navigation }) {
               fontWeight: "600",
               marginBottom: 20,
               marginLeft: 5,
-              color: "#D84315",
+              color: "#151B8D",
             }}
           >
             $ {userData.balance.toFixed(2)}

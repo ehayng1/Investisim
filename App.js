@@ -24,6 +24,7 @@ import Login from "./Screens/Login";
 import SignUp from "./Screens/SignUp";
 import Profile from "./Screens/Drawer/Profile";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { WhatIf } from "./Screens/WhatIf";
 import { FontAwesome } from "@expo/vector-icons";
 import { LanguageContext } from "./context/languageContext";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -34,7 +35,8 @@ const MyTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: "#D84315",
+    // primary: "#D84315",
+    primary: "#151B8D",
     background: "white",
   },
 };
@@ -47,7 +49,7 @@ export function MyTabs({ navigation, route }) {
     <Tab.Navigator
       initialRouteName="Feed"
       screenOptions={{
-        tabBarActiveTintColor: "#E64A19",
+        tabBarActiveTintColor: "#151B8D",
       }}
     >
       <Tab.Screen
@@ -111,7 +113,7 @@ export function MyTabs({ navigation, route }) {
         }}
       />
 
-      <Tab.Screen
+      {/* <Tab.Screen
         name={isKorean ? "투자 전략" : "Resources"}
         component={Resources}
         options={{
@@ -120,6 +122,21 @@ export function MyTabs({ navigation, route }) {
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
               name="paperclip"
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      /> */}
+      <Tab.Screen
+        name={isKorean ? "만약" : "What If"}
+        component={WhatIf}
+        options={{
+          headerShown: false,
+          tabBarLabel: isKorean ? "만약" : "What If",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons
+              name="progress-question"
               size={size}
               color={color}
             />
@@ -162,7 +179,8 @@ function MyDrawer() {
         headerLeft: () => (
           <MaterialCommunityIcons
             name="menu"
-            color="#D84315"
+            color="#151B8D"
+            // color="#D84315"
             size={25}
             style={{ marginLeft: "5%" }}
             onPress={navigation.toggleDrawer}
@@ -176,7 +194,7 @@ function MyDrawer() {
         component={MyTabs}
         options={{
           drawerIcon: ({ size }) => (
-            <MaterialCommunityIcons name="home" color="#E64A19" size={size} />
+            <MaterialCommunityIcons name="home" color="#151B8D" size={size} />
           ),
           drawerLabel: isKorean ? "홈" : "Home",
           title: "Invesitism",
@@ -204,25 +222,25 @@ function MyDrawer() {
         component={Profile}
         options={{
           drawerIcon: ({ size }) => (
-            <FontAwesome name="user-circle" size={size} color="#E64A19" />
+            <FontAwesome name="user-circle" size={size} color="#151B8D" />
           ),
           drawerLabel: isKorean ? "프로필" : "User Profile",
         }}
       />
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name={isKorean ? "DREAM 클럽" : "About Us"}
         component={About}
         options={{
           drawerIcon: ({ size }) => (
             <MaterialCommunityIcons
               name="information-outline"
-              color="#E64A19"
+              color="#151B8D"
               size={size}
             />
           ),
           drawerLabel: isKorean ? "DREAM 클럽" : "About Us",
         }}
-      />
+      /> */}
 
       <Drawer.Screen
         // name={isKorean ? "로그인" : "Login"}
@@ -236,7 +254,7 @@ function MyDrawer() {
           headerShown: false,
           drawerLabel: "Login / Sign Up",
           drawerIcon: ({ size }) => (
-            <MaterialCommunityIcons name="login" color="#E64A19" size={size} />
+            <MaterialCommunityIcons name="login" color="#151B8D" size={size} />
           ),
           //deletes from sidebar
           drawerItemStyle: { height: 0 },

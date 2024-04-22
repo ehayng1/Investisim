@@ -184,7 +184,7 @@ export default function Profile({ route, navigation }) {
               fontSize: hp("3%"),
               fontWeight: "600",
 
-              color: "#D84315",
+              color: "#151B8D",
             }}
           >
             {userData.name}
@@ -195,7 +195,7 @@ export default function Profile({ route, navigation }) {
               marginLeft: wp("2%"),
               fontSize: hp("2%"),
               fontWeight: "500",
-              color: "#D84315",
+              color: "#151B8D",
             }}
           >
             $ {userData.balance.toFixed(2)}

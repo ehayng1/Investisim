@@ -171,8 +171,8 @@ export default function Login(props) {
       ></TextInput>
       <TouchableOpacity
         style={{
-          backgroundColor: "#537FE7",
-          //   backgroundColor: "#E64A19",
+          // backgroundColor: "#537FE7",
+          backgroundColor: "#151B8D",
           marginLeft: 20,
           marginRight: 20,
           marginTop: 20,

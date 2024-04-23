@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useContext } from "react";
-
 import StockCard from "../Components/StockCard";
 import StockHeader from "../Components/StockHeader";
 import SearchStock from "../Components/SearchBox";
